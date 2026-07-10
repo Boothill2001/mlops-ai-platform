@@ -4,6 +4,47 @@ A production-inspired **MLOps + GenAI platform** for B2B manufacturing / supply 
 
 > Built as a portfolio demonstration of AI Platform Engineering: the architecture, failure-mode handling, and tradeoffs mirror what a real production system needs, using local-friendly components (SQLite, in-process vector store, mock LLM) that are swappable for production equivalents.
 
+## Screenshots
+
+### Platform Overview
+Live health snapshot — request volume, latency percentiles, cache hit rate, cost, and drift status at a glance.
+
+![Platform Overview](docs/screenshots/overview.png)
+
+### Online Inference
+Real-time supplier risk scoring with a gauge, per-feature explanation factors, latency, and cache info.
+
+![Online Inference](docs/screenshots/online-inference.png)
+
+### Batch Jobs
+Chunked CSV scoring with live progress bars, retry handling, and per-job results.
+
+![Batch Jobs](docs/screenshots/batch-jobs.png)
+
+### RAG Assistant — Permission-Aware Retrieval
+The same pipeline behaves differently per role. As **analyst**, 9 chunks are filtered out by permissions before ranking:
+
+![RAG as Analyst](docs/screenshots/rag-analyst.png)
+
+As **admin**, nothing is filtered — full document access:
+
+![RAG as Admin](docs/screenshots/rag-admin.png)
+
+### Monitoring
+Latency percentiles (p50/p95/p99), throughput, error rate, and query-intent drift (baseline vs current, JSD score) with warning states.
+
+![Monitoring](docs/screenshots/monitoring.png)
+
+### Evaluation
+RAG quality gates against golden questions — recall@k, precision@k, faithfulness, citation accuracy, failed-case drill-down, and a regression banner that blocks bad builds.
+
+![Evaluation](docs/screenshots/evaluation.png)
+
+### Tutorial
+Built-in engineering documentation served by the backend: file-by-file deep dive with failure modes, production tradeoffs, and interview talking points.
+
+![Tutorial](docs/screenshots/tutorial.png)
+
 ## Why This Project Exists
 
 Most ML demos stop at "model returns a prediction." Production AI platforms need much more:

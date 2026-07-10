@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CICAAD MLOps AI Platform — Engineering Tutorial</title>
+<title>CICAAD MLOps AI Platform — Tài liệu Kỹ thuật</title>
 <style>
   :root {
     --sidebar-bg: #0f172a;
@@ -266,37 +266,37 @@
 <nav class="sidebar">
   <div class="brand">
     <h1>CICAAD MLOps<br>AI Platform</h1>
-    <div class="sub">Engineering Tutorial</div>
+    <div class="sub">Tài liệu Kỹ thuật</div>
   </div>
 
-  <div class="group">Overview</div>
-  <a href="#architecture">Architecture Overview</a>
-  <a href="#design-decisions">Key Design Decisions</a>
+  <div class="group">Tổng quan</div>
+  <a href="#architecture">Tổng quan Kiến trúc</a>
+  <a href="#design-decisions">Các Quyết định Thiết kế Chính</a>
 
-  <div class="group">Inference Path</div>
+  <div class="group">Luồng Inference</div>
   <a href="#inference-service"><code>inference_service.py</code></a>
   <a href="#cache-service"><code>cache_service.py</code></a>
   <a href="#history-service"><code>history_service.py</code></a>
 
-  <div class="group">RAG Pipeline</div>
+  <div class="group">Pipeline RAG</div>
   <a href="#embedding-service"><code>embedding_service.py</code></a>
   <a href="#permission-service"><code>permission_service.py</code></a>
   <a href="#retrieval-service"><code>retrieval_service.py</code></a>
   <a href="#rerank-service"><code>rerank_service.py</code></a>
   <a href="#rag-service"><code>rag_service.py</code></a>
 
-  <div class="group">Operations</div>
+  <div class="group">Vận hành</div>
   <a href="#batch-service"><code>batch_service.py</code></a>
   <a href="#monitoring-service"><code>monitoring_service.py</code></a>
   <a href="#drift-service"><code>drift_service.py</code></a>
   <a href="#evaluation-service"><code>evaluation_service.py</code></a>
 
-  <div class="group">ML Layer</div>
+  <div class="group">Tầng ML</div>
   <a href="#supplier-risk-model"><code>supplier_risk_model.py</code></a>
   <a href="#feature-builder"><code>feature_builder.py</code></a>
   <a href="#model-registry"><code>model_registry.py</code></a>
 
-  <div class="group">Storage Layer</div>
+  <div class="group">Tầng Lưu trữ</div>
   <a href="#vector-store"><code>vector_store.py</code></a>
   <a href="#database"><code>database.py</code></a>
   <a href="#repositories"><code>repositories.py</code></a>
@@ -307,24 +307,25 @@
 
 <h1>CICAAD MLOps AI Platform</h1>
 <p class="lede">
-A deep, file-by-file tour of the backend: a supplier-risk inference API with caching,
-a permission-aware RAG pipeline, batch scoring, drift detection, and a golden-set
-evaluation harness — built with FastAPI, scikit-learn, NumPy, and SQLite.
-Each section explains <strong>why the file exists</strong>, <strong>what its key functions do</strong>,
-<strong>what can go wrong</strong>, <strong>how the design would change at scale</strong>, and
-<strong>how to talk about it in a senior MLOps interview</strong>.
+Một chuyến tham quan sâu, từng file một, qua toàn bộ backend: API inference đánh giá rủi ro nhà cung cấp
+(supplier risk) có caching, pipeline RAG nhận biết quyền truy cập (permission-aware), chấm điểm batch,
+phát hiện drift, và bộ khung đánh giá bằng golden set — xây dựng với FastAPI, scikit-learn, NumPy và SQLite.
+Mỗi phần giải thích <strong>tại sao file đó tồn tại</strong>, <strong>các hàm chính làm gì</strong>,
+<strong>những gì có thể sai</strong>, <strong>thiết kế sẽ thay đổi ra sao khi scale</strong>, và
+<strong>cách trình bày về nó trong một buổi phỏng vấn MLOps cấp senior</strong>.
 </p>
 
 <!-- ============================================================ -->
 <section id="architecture">
-  <h2>Architecture Overview</h2>
+  <h2>Tổng quan Kiến trúc</h2>
   <p>
-    The platform is a single FastAPI application (<code class="inline">app/main.py</code>) exposing six routers under
-    <code class="inline">/api/v1</code>: inference, RAG, batch, evaluation, monitoring — and this tutorial.
-    Every request passes through a middleware that injects a 12-hex-char <strong>request ID</strong>
-    into a <code class="inline">ContextVar</code> so log lines and responses (<code class="inline">X-Request-ID</code> header)
-    are correlated. The app lifespan hook calls <code class="inline">init_db()</code> and <code class="inline">seed_all()</code>
-    so the SQLite schema and demo documents exist before the first request.
+    Nền tảng là một ứng dụng FastAPI duy nhất (<code class="inline">app/main.py</code>) expose sáu router dưới
+    <code class="inline">/api/v1</code>: inference, RAG, batch, evaluation, monitoring — và cả tài liệu này.
+    Mọi request đều đi qua một middleware chèn <strong>request ID</strong> (12 ký tự hex)
+    vào một <code class="inline">ContextVar</code>, nhờ đó các dòng log và response (header
+    <code class="inline">X-Request-ID</code>) được liên kết với nhau (correlated). Hook lifespan của app gọi
+    <code class="inline">init_db()</code> và <code class="inline">seed_all()</code>
+    để schema SQLite và tài liệu demo tồn tại sẵn trước request đầu tiên.
   </p>
 
   <div class="diagram-card">
@@ -341,7 +342,7 @@ Each section explains <strong>why the file exists</strong>, <strong>what its key
 
     <!-- FastAPI -->
     <rect x="250" y="88" width="400" height="52" rx="8" fill="#0284c7"/>
-    <text x="450" y="112" fill="#fff" font-size="14" text-anchor="middle" font-weight="600">FastAPI · request-ID middleware · CORS</text>
+    <text x="450" y="112" fill="#fff" font-size="14" text-anchor="middle" font-weight="600">FastAPI · middleware request-ID · CORS</text>
     <text x="450" y="130" fill="#bae6fd" font-size="12" text-anchor="middle">routes_inference · routes_rag · routes_batch · routes_evaluation · routes_monitoring</text>
 
     <!-- three flows -->
@@ -352,7 +353,7 @@ Each section explains <strong>why the file exists</strong>, <strong>what its key
     <!-- Inference column -->
     <rect x="60" y="182" width="240" height="46" rx="8" fill="#e0f2fe" stroke="#0284c7"/>
     <text x="180" y="203" font-size="13.5" text-anchor="middle" font-weight="600" fill="#0c4a6e">InferenceService.predict()</text>
-    <text x="180" y="220" font-size="11.5" text-anchor="middle" fill="#0369a1">cache check → features → model → log</text>
+    <text x="180" y="220" font-size="11.5" text-anchor="middle" fill="#0369a1">check cache → features → model → log</text>
     <line x1="180" y1="228" x2="180" y2="252" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
 
     <rect x="60" y="254" width="240" height="46" rx="8" fill="#fef3c7" stroke="#d97706"/>
@@ -362,21 +363,21 @@ Each section explains <strong>why the file exists</strong>, <strong>what its key
     <!-- RAG column -->
     <rect x="330" y="182" width="240" height="46" rx="8" fill="#e0f2fe" stroke="#0284c7"/>
     <text x="450" y="203" font-size="13.5" text-anchor="middle" font-weight="600" fill="#0c4a6e">RagService.query()</text>
-    <text x="450" y="220" font-size="11.5" text-anchor="middle" fill="#0369a1">role check → cache → retrieve → rerank</text>
+    <text x="450" y="220" font-size="11.5" text-anchor="middle" fill="#0369a1">check role → cache → retrieve → rerank</text>
     <line x1="450" y1="228" x2="450" y2="252" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
 
     <rect x="330" y="254" width="240" height="46" rx="8" fill="#e0f2fe" stroke="#0284c7"/>
     <text x="450" y="275" font-size="13.5" text-anchor="middle" font-weight="600" fill="#0c4a6e">RetrievalService</text>
-    <text x="450" y="292" font-size="11.5" text-anchor="middle" fill="#0369a1">embed query · permission PRE-filter</text>
+    <text x="450" y="292" font-size="11.5" text-anchor="middle" fill="#0369a1">embed query · PRE-filter theo quyền</text>
     <line x1="450" y1="300" x2="450" y2="324" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
 
     <rect x="330" y="326" width="240" height="46" rx="8" fill="#ede9fe" stroke="#7c3aed"/>
-    <text x="450" y="347" font-size="13.5" text-anchor="middle" font-weight="600" fill="#4c1d95">VectorStore (in-memory NumPy)</text>
-    <text x="450" y="364" font-size="11.5" text-anchor="middle" fill="#6d28d9">cosine similarity over filtered candidates</text>
+    <text x="450" y="347" font-size="13.5" text-anchor="middle" font-weight="600" fill="#4c1d95">VectorStore (NumPy in-memory)</text>
+    <text x="450" y="364" font-size="11.5" text-anchor="middle" fill="#6d28d9">cosine similarity trên ứng viên đã lọc</text>
     <line x1="450" y1="372" x2="450" y2="396" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
 
     <rect x="330" y="398" width="240" height="46" rx="8" fill="#e0f2fe" stroke="#0284c7"/>
-    <text x="450" y="419" font-size="13.5" text-anchor="middle" font-weight="600" fill="#0c4a6e">RerankService → answer + citations</text>
+    <text x="450" y="419" font-size="13.5" text-anchor="middle" font-weight="600" fill="#0c4a6e">RerankService → câu trả lời + citations</text>
     <text x="450" y="436" font-size="11.5" text-anchor="middle" fill="#0369a1">0.6·vector + 0.4·keyword overlap</text>
 
     <!-- Ops column -->
@@ -387,7 +388,7 @@ Each section explains <strong>why the file exists</strong>, <strong>what its key
 
     <rect x="610" y="254" width="240" height="46" rx="8" fill="#e0f2fe" stroke="#0284c7"/>
     <text x="730" y="275" font-size="13.5" text-anchor="middle" font-weight="600" fill="#0c4a6e">DriftService</text>
-    <text x="730" y="292" font-size="11.5" text-anchor="middle" fill="#0369a1">intent distribution · Jensen–Shannon divergence</text>
+    <text x="730" y="292" font-size="11.5" text-anchor="middle" fill="#0369a1">phân phối intent · Jensen–Shannon divergence</text>
 
     <!-- storage base -->
     <line x1="180" y1="300" x2="180" y2="480" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
@@ -396,97 +397,103 @@ Each section explains <strong>why the file exists</strong>, <strong>what its key
 
     <rect x="60" y="482" width="790" height="58" rx="8" fill="#0f172a"/>
     <text x="455" y="507" fill="#e2e8f0" font-size="14" text-anchor="middle" font-weight="600">SQLite (WAL) — request_history · batch_jobs · cache_entries</text>
-    <text x="455" y="527" fill="#94a3b8" font-size="12" text-anchor="middle">HistoryRepository · BatchJobRepository · CacheRepository — connection-per-operation</text>
+    <text x="455" y="527" fill="#94a3b8" font-size="12" text-anchor="middle">HistoryRepository · BatchJobRepository · CacheRepository — mỗi thao tác một connection</text>
   </svg>
   </div>
 
-  <h3>The three request flows</h3>
+  <h3>Ba luồng request</h3>
   <ul>
-    <li><strong>Real-time inference</strong> — <code class="inline">POST /api/v1/inference/supplier-risk</code>:
-      cache lookup → feature engineering → production model from the registry → prediction + explanation →
-      write-through cache → history log. Every response carries <code class="inline">latency_ms</code>,
-      <code class="inline">cache_hit</code>, and <code class="inline">model_version</code>.</li>
-    <li><strong>RAG query</strong> — role validation → cache → embed query → <em>permission pre-filtered</em>
-      cosine search (over-fetch <code class="inline">top_k * 2</code>) → hybrid rerank → extractive answer with citations.</li>
-    <li><strong>Operational plane</strong> — batch CSV scoring in a background thread with per-record
-      retry; monitoring computes latency percentiles, error rate, cost estimates, and drift from the same
-      <code class="inline">request_history</code> table every service writes into; evaluation replays a golden
-      question set through the live RAG pipeline.</li>
+    <li><strong>Inference thời gian thực</strong> — <code class="inline">POST /api/v1/inference/supplier-risk</code>:
+      tra cache → feature engineering → lấy model production từ registry → prediction + explanation →
+      write-through cache → ghi log history. Mọi response đều mang <code class="inline">latency_ms</code>,
+      <code class="inline">cache_hit</code>, và <code class="inline">model_version</code>.</li>
+    <li><strong>Truy vấn RAG</strong> — kiểm tra role → cache → embed câu hỏi → tìm kiếm cosine đã được
+      <em>pre-filter theo quyền</em> (over-fetch <code class="inline">top_k * 2</code>) → rerank lai (hybrid) →
+      câu trả lời dạng trích xuất (extractive) kèm citations.</li>
+    <li><strong>Mặt phẳng vận hành (operational plane)</strong> — chấm điểm CSV theo batch trong background thread
+      với retry cho từng bản ghi; monitoring tính các percentile độ trễ, tỷ lệ lỗi, ước tính chi phí, và drift từ
+      chính bảng <code class="inline">request_history</code> mà mọi service đều ghi vào; evaluation phát lại
+      (replay) một bộ câu hỏi golden qua pipeline RAG đang chạy thật.</li>
   </ul>
 
   <div class="callout why">
-    <div class="title">Why this layering</div>
-    <p>Routes are thin (validate → delegate), services own business logic, repositories own SQL, and the ML
-    layer is behind an abstract interface. Each layer is swappable: SQLite → Postgres, in-memory vectors → pgvector,
-    rule-based model → trained model — without touching the API surface. That separation is the whole point of the
-    exercise: the architecture is production-shaped even where individual components are deliberately simple.</p>
+    <div class="title">Tại sao phân tầng như vậy</div>
+    <p>Route thì mỏng (validate → ủy quyền xuống dưới), service sở hữu business logic, repository sở hữu SQL, và
+    tầng ML nằm sau một interface trừu tượng. Mỗi tầng đều có thể thay thế: SQLite → Postgres, vector in-memory →
+    pgvector, model rule-based → model đã train — mà không đụng đến bề mặt API. Sự tách bạch đó chính là mục đích
+    của toàn bộ bài tập: kiến trúc mang hình hài production ngay cả khi từng thành phần được cố ý giữ đơn giản.</p>
   </div>
 </section>
 
 <!-- ============================================================ -->
 <section id="design-decisions">
-  <h2>Key Design Decisions</h2>
+  <h2>Các Quyết định Thiết kế Chính</h2>
 
-  <h3>1. Pre-filtering RAG security (permission filter before ranking)</h3>
+  <h3>1. Bảo mật RAG bằng pre-filtering (lọc quyền trước khi xếp hạng)</h3>
   <p>
-    Document-level permissions are enforced <strong>before</strong> similarity ranking:
-    <code class="inline">VectorStore.search()</code> accepts a <code class="inline">filter_fn</code> and skips
-    unauthorized documents before computing cosine similarity. The naive alternative — retrieve top-k, then drop
-    forbidden results — has two failure modes: (a) a user may receive <em>fewer than k</em> results, and the count
-    delta leaks the <em>existence</em> of restricted documents; (b) worse, a rerank or answer-generation step
-    downstream may have already seen restricted text. Pre-filtering makes unauthorized documents invisible to the
-    entire pipeline. The docstring in <code class="inline">permission_service.get_permission_filter()</code> states
-    this explicitly — it is a deliberate security invariant, not an implementation accident.
+    Quyền truy cập ở cấp tài liệu được thực thi <strong>trước</strong> bước xếp hạng theo độ tương đồng:
+    <code class="inline">VectorStore.search()</code> nhận một <code class="inline">filter_fn</code> và bỏ qua
+    các tài liệu không được phép trước khi tính cosine similarity. Cách làm ngây thơ — lấy top-k rồi mới loại bỏ
+    kết quả cấm — có hai chế độ lỗi: (a) người dùng có thể nhận <em>ít hơn k</em> kết quả, và chênh lệch số lượng
+    đó làm rò rỉ <em>sự tồn tại</em> của các tài liệu bị hạn chế; (b) tệ hơn, bước rerank hoặc sinh câu trả lời
+    phía sau có thể đã "nhìn thấy" văn bản bị hạn chế. Pre-filtering khiến tài liệu không được phép trở nên vô hình
+    đối với toàn bộ pipeline. Docstring trong <code class="inline">permission_service.get_permission_filter()</code>
+    nêu rõ điều này — đó là một bất biến bảo mật (security invariant) có chủ đích, không phải sự tình cờ của
+    implementation.
   </p>
 
-  <h3>2. Rule-based model with trained-model fallback path</h3>
+  <h3>2. Model rule-based với đường fallback sang model đã train</h3>
   <p>
-    <code class="inline">RuleBasedModel</code> is a transparent weighted linear scorer that ships on day one and is
-    perfectly explainable. <code class="inline">TrainedModel</code> wraps a pickled sklearn classifier but holds a
-    <code class="inline">RuleBasedModel</code> as fallback: if the artifact is missing or fails to load, predictions
-    degrade gracefully instead of 500ing. The registry serves whichever version is staged
-    <code class="inline">"production"</code>. This encodes a real MLOps principle: <em>the serving contract is stable;
-    the model behind it is an implementation detail with a safety net.</em>
+    <code class="inline">RuleBasedModel</code> là một bộ chấm điểm tuyến tính có trọng số, minh bạch, sẵn sàng chạy
+    từ ngày đầu tiên và giải thích được hoàn toàn. <code class="inline">TrainedModel</code> bọc một classifier
+    sklearn đã pickle nhưng giữ một <code class="inline">RuleBasedModel</code> làm fallback: nếu artifact bị thiếu
+    hoặc load thất bại, prediction xuống cấp một cách êm thấm (graceful degradation) thay vì trả lỗi 500. Registry
+    phục vụ bất kỳ version nào đang ở stage <code class="inline">"production"</code>. Điều này mã hóa một nguyên tắc
+    MLOps thực thụ: <em>hợp đồng serving là ổn định; model đứng sau nó chỉ là chi tiết implementation kèm lưới an
+    toàn.</em>
   </p>
 
-  <h3>3. Composite cache keys (namespace + sorted params + SHA-256)</h3>
+  <h3>3. Khóa cache tổng hợp (namespace + params đã sort + SHA-256)</h3>
   <p>
-    <code class="inline">CacheService._make_key()</code> builds
+    <code class="inline">CacheService._make_key()</code> xây khóa dạng
     <code class="inline">sha256(json.dumps({"ns": namespace, **sorted(params)}))</code>.
-    Sorting the params dict makes the key <strong>order-insensitive</strong> — the same logical request always maps
-    to the same key regardless of field order. The namespace prevents cross-feature collisions ("inference" vs "rag"),
-    and hashing yields fixed-length keys safe for any backing store. RAG cache keys include the <strong>role</strong>,
-    so a viewer can never be served an answer computed for an admin — the cache respects the permission boundary.
+    Việc sort dict params làm cho khóa <strong>không phụ thuộc thứ tự</strong> — cùng một request logic luôn ánh xạ
+    về cùng một khóa bất kể thứ tự các field. Namespace ngăn va chạm giữa các tính năng ("inference" vs "rag"),
+    và việc hash cho ra khóa độ dài cố định, an toàn với mọi backing store. Khóa cache của RAG bao gồm cả
+    <strong>role</strong>, nên một viewer không bao giờ có thể nhận câu trả lời được tính cho admin — cache tôn
+    trọng ranh giới phân quyền.
   </p>
 
-  <h3>4. JSD drift detection on intent distributions</h3>
+  <h3>4. Phát hiện drift bằng JSD trên phân phối intent</h3>
   <p>
-    <code class="inline">DriftService</code> classifies recent traffic into intents (risk_assessment, compliance,
-    pricing, quality, general) and compares that distribution against a frozen baseline using
-    <strong>Jensen–Shannon divergence</strong>. JSD was chosen over raw KL divergence because it is
-    <em>symmetric</em> and <em>bounded</em> (0 → ln 2), which makes fixed thresholds
-    (<code class="inline">warning=0.20</code>, <code class="inline">alert=0.35</code>) meaningful; KL is unbounded and
-    blows up on zero-probability bins. This is <em>input/usage drift</em> — the earliest, cheapest signal that the
-    world your model sees no longer matches the world it was tuned for.
+    <code class="inline">DriftService</code> phân loại lưu lượng gần đây thành các intent (risk_assessment,
+    compliance, pricing, quality, general) và so sánh phân phối đó với một baseline đã đóng băng bằng
+    <strong>Jensen–Shannon divergence</strong>. JSD được chọn thay cho KL divergence thuần vì nó
+    <em>đối xứng</em> và <em>bị chặn</em> (0 → ln 2), giúp các ngưỡng cố định
+    (<code class="inline">warning=0.20</code>, <code class="inline">alert=0.35</code>) có ý nghĩa; KL thì không bị
+    chặn và "nổ tung" ở các bin có xác suất bằng 0. Đây là <em>drift về đầu vào/mức sử dụng</em> (input/usage
+    drift) — tín hiệu sớm nhất, rẻ nhất cho thấy thế giới mà model của bạn đang nhìn thấy không còn khớp với thế
+    giới mà nó được tinh chỉnh cho.
   </p>
 
-  <h3>5. Mock embeddings via HashingVectorizer behind a Protocol</h3>
+  <h3>5. Mock embeddings bằng HashingVectorizer sau một Protocol</h3>
   <p>
-    <code class="inline">EmbeddingService</code> programs against an <code class="inline">EmbeddingBackend</code>
-    Protocol with two implementations: <code class="inline">MockEmbedding</code>
-    (sklearn <code class="inline">HashingVectorizer</code>, 256-dim, L2-normalized — deterministic, zero model download,
-    instant tests) and <code class="inline">SentenceTransformerEmbedding</code> (all-MiniLM-L6-v2, lazily imported).
-    A config flag (<code class="inline">embedding_provider</code>) swaps them. The hashing trick gives real
-    lexical-overlap similarity that exercises the entire retrieval pipeline honestly, while keeping CI hermetic.
+    <code class="inline">EmbeddingService</code> lập trình dựa trên Protocol
+    <code class="inline">EmbeddingBackend</code> với hai implementation: <code class="inline">MockEmbedding</code>
+    (sklearn <code class="inline">HashingVectorizer</code>, 256 chiều, chuẩn hóa L2 — deterministic, không phải tải
+    model, test tức thì) và <code class="inline">SentenceTransformerEmbedding</code> (all-MiniLM-L6-v2, import
+    lười — lazy). Một cờ config (<code class="inline">embedding_provider</code>) hoán đổi chúng. Hashing trick cho
+    độ tương đồng dựa trên trùng lặp từ vựng (lexical overlap) thật sự, giúp toàn bộ pipeline retrieval được kiểm
+    thử một cách trung thực, trong khi vẫn giữ CI kín (hermetic).
   </p>
 
   <div class="callout talk">
-    <div class="title">Interview framing for the whole system</div>
-    <p>"I built the platform contract-first: every architectural seam — model, embeddings, cache, storage — is an
-    interface with a cheap local implementation and a documented production swap. That let me demonstrate the
-    <em>operational</em> parts of MLOps (caching, drift, evaluation, observability, permission-aware retrieval)
-    end-to-end without cloud dependencies, and each mock names its real replacement: Redis, pgvector,
-    sentence-transformers, MLflow."</p>
+    <div class="title">Cách đóng khung toàn hệ thống khi phỏng vấn</div>
+    <p>"Tôi xây nền tảng theo hướng contract-first: mọi đường nối kiến trúc — model, embeddings, cache, storage —
+    đều là một interface với một implementation local rẻ tiền và một phương án thay thế production được ghi rõ.
+    Điều đó cho phép tôi trình diễn các phần <em>vận hành</em> của MLOps (caching, drift, evaluation, observability,
+    retrieval nhận biết quyền) từ đầu đến cuối mà không phụ thuộc cloud, và mỗi mock đều nêu tên bản thay thế thật
+    của nó: Redis, pgvector, sentence-transformers, MLflow."</p>
   </div>
 </section>
 
@@ -495,87 +502,91 @@ Each section explains <strong>why the file exists</strong>, <strong>what its key
 <!-- ============================================================ -->
 <section id="inference-service">
   <span class="tag svc">Service</span>
-  <h2><code>services/inference_service.py</code> — Real-time prediction orchestrator</h2>
+  <h2><code>services/inference_service.py</code> — Bộ điều phối prediction thời gian thực</h2>
 
-  <h3>Purpose</h3>
+  <h3>Mục đích</h3>
   <p>
-    The single entry point for real-time supplier-risk predictions. It owns the <em>orchestration</em> —
-    cache → features → model → explanation → cache write → history log — but none of the ML math, feature logic,
-    or storage details. Routes call it; it calls everything else.
+    Điểm vào duy nhất cho các prediction rủi ro nhà cung cấp thời gian thực. Nó sở hữu phần <em>điều phối</em>
+    (orchestration) — cache → features → model → explanation → ghi cache → ghi log history — nhưng không sở hữu
+    bất kỳ phép toán ML, logic feature hay chi tiết lưu trữ nào. Route gọi nó; nó gọi mọi thứ còn lại.
   </p>
 
-  <h3>Key functions</h3>
+  <h3>Các hàm chính</h3>
   <div class="tbl-wrap"><table>
-    <tr><th>Member</th><th>What it does</th></tr>
+    <tr><th>Thành phần</th><th>Chức năng</th></tr>
     <tr><td><code>InferenceService.predict(request)</code></td>
-        <td>Starts a trace (request ID + timer). Checks the cache using the full request payload as the key.
-        On hit: returns cached body with <code>cache_hit=True</code> and a <em>fresh</em> request_id/latency.
-        On miss: builds features, fetches the production <code>ModelVersion</code> from the registry
-        (raises <code>RuntimeError</code> if none), calls <code>predict()</code> and <code>explain()</code>,
-        assembles a <code>SupplierRiskResponse</code>, writes through to cache, and logs to history.</td></tr>
+        <td>Bắt đầu một trace (request ID + timer). Kiểm tra cache dùng toàn bộ payload request làm khóa.
+        Nếu hit: trả về body đã cache với <code>cache_hit=True</code> và request_id/latency <em>mới</em>.
+        Nếu miss: dựng features, lấy <code>ModelVersion</code> production từ registry
+        (raise <code>RuntimeError</code> nếu không có), gọi <code>predict()</code> và <code>explain()</code>,
+        lắp ráp một <code>SupplierRiskResponse</code>, ghi write-through vào cache, và ghi log vào history.</td></tr>
     <tr><td><code>get_inference_service()</code></td>
-        <td>Module-level lazy singleton wiring <code>CacheService</code>, <code>HistoryService</code>, and a
-        <code>ModelRegistry</code>. Constructor injection keeps the class unit-testable with fakes.</td></tr>
+        <td>Singleton lười khởi tạo (lazy) ở cấp module, nối dây <code>CacheService</code>,
+        <code>HistoryService</code> và một <code>ModelRegistry</code>. Constructor injection giữ cho class có thể
+        unit-test bằng các fake.</td></tr>
   </table></div>
 
-<pre><span class="c"># The core orchestration, condensed:</span>
+<pre><span class="c"># Phần điều phối cốt lõi, rút gọn:</span>
 cached = self._cache.get(<span class="s">"inference"</span>, **request.model_dump())
 <span class="k">if</span> cached: <span class="k">return</span> SupplierRiskResponse(**cached, cache_hit=<span class="k">True</span>, ...)
 
 features = build_features(request.model_dump())
-model_version = self._registry.get_production()   <span class="c"># RuntimeError if None</span>
+model_version = self._registry.get_production()   <span class="c"># RuntimeError nếu None</span>
 prediction = model_version.model_instance.predict(features)
 explanation = model_version.model_instance.explain(features)
-<span class="c"># ... respond, cache.set(...), history.log_request(...)</span></pre>
+<span class="c"># ... trả response, cache.set(...), history.log_request(...)</span></pre>
 
   <div class="callout why">
-    <div class="title">Why it exists</div>
-    <p>Without an orchestrator, cache logic and model dispatch leak into route handlers and get copy-pasted into the
-    batch path. Centralizing means <em>one</em> place defines the serving contract: every prediction is cached,
-    versioned, explained, and logged. Note that cached responses still get a fresh <code class="inline">request_id</code>
-    and real measured latency — observability metadata is never cached, only the model output is.</p>
+    <div class="title">Tại sao nó tồn tại</div>
+    <p>Không có bộ điều phối, logic cache và việc chọn model sẽ rò rỉ vào các route handler rồi bị copy-paste sang
+    đường batch. Tập trung hóa nghĩa là <em>một</em> nơi duy nhất định nghĩa hợp đồng serving: mọi prediction đều
+    được cache, gắn version, giải thích và ghi log. Lưu ý rằng response từ cache vẫn nhận
+    <code class="inline">request_id</code> mới và latency đo thật — metadata phục vụ observability không bao giờ
+    được cache, chỉ có output của model là được cache.</p>
   </div>
 
   <div class="callout warn">
-    <div class="title">What can go wrong</div>
+    <div class="title">Những gì có thể sai</div>
     <ul>
-      <li><strong>Cache hits are not logged to history.</strong> <code class="inline">log_request()</code> is only called
-      on the miss path, so <code class="inline">cache_hit_rate</code> computed from history undercounts hits.
-      Debugging tip: if monitoring shows a near-zero hit rate but responses return <code class="inline">cache_hit=true</code>,
-      this is why.</li>
-      <li><strong>Stale predictions after model promotion.</strong> The cache key does not include the model version;
-      promoting a new model keeps serving old cached scores until TTL (300 s) expires. Fix: add
-      <code class="inline">model_version</code> to the cache params or invalidate the namespace on promotion.</li>
-      <li><strong>Singleton state in tests.</strong> The module-level <code class="inline">_instance</code> persists
-      across tests; reset it (or inject fresh dependencies) in fixtures or tests will share cache state.</li>
-      <li><strong>No production model → 500.</strong> <code class="inline">RuntimeError("No production model registered")</code>
-      surfaces as an unhandled 500. Reasonable fail-fast for a demo; production would map it to a 503 with an alert.</li>
+      <li><strong>Cache hit không được ghi vào history.</strong> <code class="inline">log_request()</code> chỉ được
+      gọi trên đường miss, nên <code class="inline">cache_hit_rate</code> tính từ history sẽ đếm thiếu số hit.
+      Mẹo debug: nếu monitoring cho thấy hit rate gần bằng 0 nhưng response lại trả
+      <code class="inline">cache_hit=true</code>, thì nguyên nhân là đây.</li>
+      <li><strong>Prediction cũ (stale) sau khi promote model.</strong> Khóa cache không chứa model version; promote
+      model mới xong vẫn tiếp tục phục vụ điểm số cũ đã cache cho tới khi TTL (300 s) hết hạn. Cách sửa: thêm
+      <code class="inline">model_version</code> vào params của cache hoặc invalidate cả namespace khi promote.</li>
+      <li><strong>Trạng thái singleton trong test.</strong> Biến <code class="inline">_instance</code> cấp module
+      tồn tại xuyên suốt các test; hãy reset nó (hoặc inject dependency mới) trong fixture, nếu không các test sẽ
+      dùng chung trạng thái cache.</li>
+      <li><strong>Không có model production → 500.</strong> <code class="inline">RuntimeError("No production model registered")</code>
+      nổi lên thành lỗi 500 không được xử lý. Fail-fast hợp lý cho một bản demo; production sẽ ánh xạ nó sang 503
+      kèm cảnh báo (alert).</li>
     </ul>
   </div>
 
   <div class="callout trade">
-    <div class="title">Production tradeoffs</div>
+    <div class="title">Đánh đổi khi lên production</div>
     <ul>
-      <li><code class="inline">predict()</code> is <code class="inline">async</code> but every call inside is synchronous
-      (SQLite, sklearn). Fine at demo scale; at real scale, blocking calls move to a thread pool
-      (<code class="inline">run_in_executor</code>) or the model moves behind a dedicated serving layer
+      <li><code class="inline">predict()</code> là <code class="inline">async</code> nhưng mọi lời gọi bên trong đều
+      đồng bộ (SQLite, sklearn). Ổn ở quy mô demo; ở quy mô thật, các lời gọi blocking chuyển sang thread pool
+      (<code class="inline">run_in_executor</code>) hoặc model chuyển ra sau một tầng serving chuyên dụng
       (Triton, Ray Serve, KServe).</li>
-      <li>History logging is a synchronous DB write on the request path. At scale it becomes fire-and-forget:
-      a queue/async writer, or events emitted to Kafka and aggregated downstream.</li>
-      <li>Shadow/canary evaluation would hook here: score with both production and canary models, serve production,
-      log both.</li>
+      <li>Ghi log history là một thao tác ghi DB đồng bộ nằm trên đường request. Ở quy mô lớn nó trở thành
+      fire-and-forget: một queue/async writer, hoặc phát event sang Kafka rồi tổng hợp phía sau.</li>
+      <li>Đánh giá shadow/canary sẽ móc vào đây: chấm điểm bằng cả model production lẫn canary, phục vụ bản
+      production, ghi log cả hai.</li>
     </ul>
   </div>
 
   <div class="callout talk">
-    <div class="title">Interview talking points</div>
+    <div class="title">Điểm nói chuyện phỏng vấn</div>
     <ul>
-      <li>"Cache-aside with write-through: read the cache first, compute on miss, populate on the way out. The key is
-      the full request payload, so any input change is automatically a different key."</li>
-      <li>"Every response carries model_version — that's prediction lineage. When a customer disputes a score, I can
-      tell exactly which model produced it."</li>
-      <li>Point out the stale-after-promotion caveat yourself — knowing your own cache-invalidation gap is a stronger
-      signal than pretending the design is perfect.</li>
+      <li>"Cache-aside kết hợp write-through: đọc cache trước, tính toán khi miss, ghi vào cache trên đường ra.
+      Khóa là toàn bộ payload của request, nên bất kỳ thay đổi input nào cũng tự động là một khóa khác."</li>
+      <li>"Mọi response đều mang model_version — đó chính là prediction lineage. Khi khách hàng tranh cãi về một
+      điểm số, tôi có thể nói chính xác model nào đã sinh ra nó."</li>
+      <li>Hãy chủ động chỉ ra hạn chế stale-sau-promotion — biết rõ lỗ hổng cache-invalidation của chính mình là
+      tín hiệu mạnh hơn nhiều so với giả vờ thiết kế hoàn hảo.</li>
     </ul>
   </div>
 </section>
@@ -583,79 +594,81 @@ explanation = model_version.model_instance.explain(features)
 <!-- ============================================================ -->
 <section id="cache-service">
   <span class="tag svc">Service</span>
-  <h2><code>services/cache_service.py</code> — Two-tier LRU + SQLite cache</h2>
+  <h2><code>services/cache_service.py</code> — Cache hai tầng LRU + SQLite</h2>
 
-  <h3>Purpose</h3>
+  <h3>Mục đích</h3>
   <p>
-    A namespaced key-value cache with two tiers: an in-process <code class="inline">OrderedDict</code> LRU
-    (fast path, bounded at <code class="inline">cache_max_size=1000</code>) backed by a SQLite
-    <code class="inline">cache_entries</code> table (survives restarts, enforces TTL). It mimics the
-    local-cache-in-front-of-Redis pattern you would deploy in production.
+    Một cache key-value có namespace với hai tầng: một LRU in-process dùng
+    <code class="inline">OrderedDict</code> (đường nhanh, giới hạn <code class="inline">cache_max_size=1000</code>)
+    được chống lưng bởi bảng SQLite <code class="inline">cache_entries</code> (sống sót qua restart, thực thi TTL).
+    Nó mô phỏng pattern "cache local đặt trước Redis" mà bạn sẽ triển khai trong production.
   </p>
 
-  <h3>Key functions</h3>
+  <h3>Các hàm chính</h3>
   <div class="tbl-wrap"><table>
-    <tr><th>Member</th><th>What it does</th></tr>
+    <tr><th>Thành phần</th><th>Chức năng</th></tr>
     <tr><td><code>_make_key(namespace, **params)</code></td>
-        <td>Canonical key: JSON of <code>{"ns": ns, **sorted(params)}</code> → SHA-256 hex. Sorted params make the
-        key order-insensitive; <code>default=str</code> tolerates non-JSON types; the namespace isolates features.</td></tr>
+        <td>Khóa chuẩn hóa (canonical): JSON của <code>{"ns": ns, **sorted(params)}</code> → SHA-256 hex. Params đã
+        sort làm khóa không phụ thuộc thứ tự; <code>default=str</code> chấp nhận các kiểu không phải JSON;
+        namespace cô lập các tính năng.</td></tr>
     <tr><td><code>get(namespace, **params)</code></td>
-        <td>Memory first (<code>move_to_end</code> marks recency). On memory miss, reads SQLite; a hit is
-        <em>promoted</em> into memory (read-through) and eviction runs.</td></tr>
+        <td>Bộ nhớ trước (<code>move_to_end</code> đánh dấu mức độ "mới dùng"). Khi miss ở bộ nhớ thì đọc SQLite;
+        một hit sẽ được <em>thăng cấp</em> (promote) vào bộ nhớ (read-through) và chạy eviction.</td></tr>
     <tr><td><code>set(namespace, value, **params)</code></td>
-        <td>Writes both tiers: memory (then LRU evict) and SQLite with TTL — write-through, so a restart repopulates
-        from disk.</td></tr>
+        <td>Ghi cả hai tầng: bộ nhớ (rồi LRU evict) và SQLite kèm TTL — write-through, nên sau restart cache được
+        nạp lại từ đĩa.</td></tr>
     <tr><td><code>invalidate(...)</code> / <code>_evict()</code></td>
-        <td>Removes one key from both tiers / pops the least-recently-used entries (<code>popitem(last=False)</code>)
-        while over capacity.</td></tr>
+        <td>Xóa một khóa khỏi cả hai tầng / loại bỏ các entry ít dùng gần đây nhất
+        (<code>popitem(last=False)</code>) khi vượt dung lượng.</td></tr>
   </table></div>
 
   <div class="callout why">
-    <div class="title">Why two tiers</div>
-    <p>Memory gives microsecond hits with zero I/O; SQLite gives durability and TTL. The promotion-on-read pattern means
-    hot keys migrate to the fast tier automatically. It is the exact shape of "process-local cache + shared Redis" —
-    only the second tier's technology changes in production.</p>
+    <div class="title">Tại sao hai tầng</div>
+    <p>Bộ nhớ cho hit ở mức micro giây, không I/O; SQLite cho tính bền vững (durability) và TTL. Pattern
+    promote-khi-đọc khiến các khóa "nóng" tự động di cư sang tầng nhanh. Đây đúng là hình dạng của
+    "cache cục bộ theo process + Redis chia sẻ" — chỉ có công nghệ của tầng thứ hai là thay đổi trong production.</p>
   </div>
 
   <div class="callout warn">
-    <div class="title">What can go wrong</div>
+    <div class="title">Những gì có thể sai</div>
     <ul>
-      <li><strong>The memory tier ignores TTL.</strong> Only <code class="inline">CacheRepository.get()</code> checks
-      expiry. An entry that stays hot in memory can outlive its TTL indefinitely. Debugging tip: if you see stale data
-      past TTL, check whether the key ever left the memory tier.</li>
-      <li><strong>Mutable value aliasing.</strong> <code class="inline">get()</code> returns the dict stored in memory
-      by reference — a caller that mutates it corrupts the cache. (This is why <code class="inline">RagService</code>
-      caches <code class="inline">response.copy()</code> and why the cached RAG dict gets mutated fields patched on
-      each hit — the copy on write protects the shared entry.)</li>
-      <li><strong>Multi-process incoherence.</strong> Two uvicorn workers each have their own memory tier; an
-      <code class="inline">invalidate()</code> in worker A leaves a stale entry in worker B until its LRU evicts it.</li>
-      <li><strong>Theoretical hash collisions</strong> are a non-issue with SHA-256, but forgetting the namespace when
-      calling <code class="inline">get/set</code> silently reads the wrong keyspace — always grep for the namespace
-      constant when debugging misses.</li>
+      <li><strong>Tầng bộ nhớ phớt lờ TTL.</strong> Chỉ <code class="inline">CacheRepository.get()</code> mới kiểm
+      tra hạn. Một entry luôn "nóng" trong bộ nhớ có thể sống lâu hơn TTL vô hạn định. Mẹo debug: nếu thấy dữ liệu
+      cũ vượt quá TTL, hãy kiểm tra xem khóa đó đã từng rời khỏi tầng bộ nhớ chưa.</li>
+      <li><strong>Aliasing giá trị mutable.</strong> <code class="inline">get()</code> trả về dict lưu trong bộ nhớ
+      theo tham chiếu — một caller mutate nó sẽ làm hỏng cache. (Đây là lý do <code class="inline">RagService</code>
+      cache <code class="inline">response.copy()</code> và tại sao dict RAG đã cache được vá lại các field
+      thay đổi trên mỗi hit — bản copy khi ghi bảo vệ entry dùng chung.)</li>
+      <li><strong>Bất nhất giữa nhiều process.</strong> Hai worker uvicorn, mỗi worker có tầng bộ nhớ riêng; một
+      <code class="inline">invalidate()</code> ở worker A để lại entry cũ ở worker B cho tới khi LRU của nó evict.</li>
+      <li><strong>Va chạm hash trên lý thuyết</strong> không phải vấn đề với SHA-256, nhưng quên namespace khi gọi
+      <code class="inline">get/set</code> sẽ âm thầm đọc nhầm keyspace — khi debug các cú miss, luôn grep hằng số
+      namespace.</li>
     </ul>
   </div>
 
   <div class="callout trade">
-    <div class="title">Production tradeoffs</div>
+    <div class="title">Đánh đổi khi lên production</div>
     <ul>
-      <li>Swap SQLite tier for <strong>Redis</strong>: native TTL (<code class="inline">SETEX</code>), atomic ops,
-      shared across replicas, pub/sub for invalidation broadcasts to local tiers.</li>
-      <li>Add metrics: hit/miss counters per namespace, eviction rate, memory-tier vs persistent-tier hit split.</li>
-      <li>Consider <strong>stampede protection</strong> (single-flight locking or probabilistic early expiry) so a hot
-      key expiring doesn't trigger a thundering herd of model calls.</li>
+      <li>Thay tầng SQLite bằng <strong>Redis</strong>: TTL gốc (<code class="inline">SETEX</code>), thao tác
+      atomic, chia sẻ giữa các replica, pub/sub để phát broadcast invalidation tới các tầng local.</li>
+      <li>Thêm metrics: bộ đếm hit/miss theo namespace, tốc độ eviction, tỷ lệ hit tách theo tầng bộ nhớ vs tầng
+      bền vững.</li>
+      <li>Cân nhắc <strong>chống stampede</strong> (khóa single-flight hoặc hết hạn sớm theo xác suất) để một khóa
+      nóng hết hạn không kích hoạt cả "bầy" lời gọi model (thundering herd).</li>
     </ul>
   </div>
 
   <div class="callout talk">
-    <div class="title">Interview talking points</div>
+    <div class="title">Điểm nói chuyện phỏng vấn</div>
     <ul>
-      <li>"Cache key design is the interesting part: namespace prevents cross-feature collisions, sorted params make
-      keys canonical, and hashing bounds key size. For RAG I put the user's role in the key so caching can never
-      bypass authorization."</li>
-      <li>"OrderedDict with move_to_end is the textbook O(1) LRU — same data structure functools.lru_cache uses
-      internally."</li>
-      <li>Be ready for: "What's your invalidation story when the model updates?" — answer: version the namespace or
-      include model_version in the key.</li>
+      <li>"Thiết kế khóa cache là phần thú vị: namespace ngăn va chạm giữa các tính năng, params đã sort làm khóa
+      chuẩn hóa, và hashing giới hạn kích thước khóa. Với RAG tôi đưa role của người dùng vào khóa để caching không
+      bao giờ có thể vượt qua phân quyền."</li>
+      <li>"OrderedDict với move_to_end là LRU O(1) kiểu sách giáo khoa — đúng cấu trúc dữ liệu mà
+      functools.lru_cache dùng bên trong."</li>
+      <li>Hãy sẵn sàng cho câu hỏi: "Chiến lược invalidation của bạn khi model cập nhật là gì?" — trả lời: version
+      hóa namespace hoặc đưa model_version vào khóa.</li>
     </ul>
   </div>
 </section>
@@ -663,68 +676,71 @@ explanation = model_version.model_instance.explain(features)
 <!-- ============================================================ -->
 <section id="history-service">
   <span class="tag svc">Service</span>
-  <h2><code>services/history_service.py</code> — Request audit log</h2>
+  <h2><code>services/history_service.py</code> — Nhật ký audit của request</h2>
 
-  <h3>Purpose</h3>
+  <h3>Mục đích</h3>
   <p>
-    A thin service over <code class="inline">HistoryRepository</code> that records every served request
-    (request ID, endpoint, latency, status, cache_hit, model version, payload) and answers aggregate questions.
-    It is the platform's <strong>system of record</strong>: monitoring, drift detection, and debugging all read from
-    the rows this service writes.
+    Một service mỏng bên trên <code class="inline">HistoryRepository</code>, ghi lại mọi request đã phục vụ
+    (request ID, endpoint, latency, status, cache_hit, model version, payload) và trả lời các câu hỏi tổng hợp.
+    Nó là <strong>system of record</strong> của nền tảng: monitoring, phát hiện drift, và debugging đều đọc từ
+    những dòng mà service này ghi.
   </p>
 
-  <h3>Key functions</h3>
+  <h3>Các hàm chính</h3>
   <div class="tbl-wrap"><table>
-    <tr><th>Member</th><th>What it does</th></tr>
+    <tr><th>Thành phần</th><th>Chức năng</th></tr>
     <tr><td><code>log_request(...)</code></td>
-        <td>Inserts one row into <code>request_history</code>. The payload dict is stored as JSON so drift analysis
-        can later re-classify queries without a schema migration.</td></tr>
+        <td>Chèn một dòng vào <code>request_history</code>. Dict payload được lưu dưới dạng JSON để việc phân tích
+        drift về sau có thể phân loại lại các truy vấn mà không cần migration schema.</td></tr>
     <tr><td><code>get_history(endpoint, limit)</code></td>
-        <td>Recent rows, optionally filtered by endpoint, newest first.</td></tr>
+        <td>Các dòng gần nhất, tùy chọn lọc theo endpoint, mới nhất trước.</td></tr>
     <tr><td><code>get_stats(endpoint)</code></td>
-        <td>Pulls up to 10,000 rows and computes total count, mean latency, and cache-hit rate in Python.</td></tr>
+        <td>Kéo tối đa 10.000 dòng và tính tổng số, latency trung bình, và tỷ lệ cache-hit bằng Python.</td></tr>
   </table></div>
 
   <div class="callout why">
-    <div class="title">Why it exists</div>
-    <p>Prediction logging is the foundation of every downstream MLOps capability: latency SLO tracking, drift
-    detection, incident forensics ("what did we return for request X?"), and eventually retraining data. Making it a
-    service (not inline SQL in each caller) means one schema and one write path.</p>
+    <div class="title">Tại sao nó tồn tại</div>
+    <p>Ghi log prediction là nền móng của mọi năng lực MLOps phía sau: theo dõi SLO latency, phát hiện drift,
+    điều tra sự cố ("chúng ta đã trả gì cho request X?"), và cuối cùng là dữ liệu retrain. Biến nó thành một
+    service (thay vì SQL nội tuyến ở mỗi caller) nghĩa là một schema duy nhất và một đường ghi duy nhất.</p>
   </div>
 
   <div class="callout warn">
-    <div class="title">What can go wrong</div>
+    <div class="title">Những gì có thể sai</div>
     <ul>
-      <li><strong>Aggregation in Python, not SQL.</strong> <code class="inline">get_stats</code> loads 10k rows to
-      compute an average that SQLite could do with <code class="inline">AVG()</code>. Fine now; a memory/latency trap
-      once the table grows. The 10k cap also silently truncates stats on busy systems.</li>
-      <li><strong>Status string mismatch:</strong> inference logs <code class="inline">status="ok"</code> while
-      monitoring counts errors as <code class="inline">status != "success"</code> — so every request counts as an
-      error in the error-rate metric. Classic cross-service constant drift; a shared enum fixes it.</li>
-      <li><strong>Payloads may contain sensitive data.</strong> Anything in the request lands in the DB as plaintext
-      JSON; production needs field-level redaction and a retention policy.</li>
-      <li><strong>Synchronous write on the hot path</strong> — a locked or slow DB adds directly to user latency.</li>
+      <li><strong>Tổng hợp bằng Python, không phải SQL.</strong> <code class="inline">get_stats</code> nạp 10k dòng
+      để tính một giá trị trung bình mà SQLite có thể làm bằng <code class="inline">AVG()</code>. Hiện tại ổn;
+      nhưng là cái bẫy bộ nhớ/latency khi bảng lớn dần. Giới hạn 10k cũng âm thầm cắt cụt số liệu trên hệ thống
+      bận rộn.</li>
+      <li><strong>Lệch chuỗi status:</strong> inference ghi <code class="inline">status="ok"</code> trong khi
+      monitoring đếm lỗi theo điều kiện <code class="inline">status != "success"</code> — nên mọi request đều bị
+      tính là lỗi trong metric error-rate. Một ca kinh điển của "trôi dạt hằng số giữa các service"
+      (cross-service constant drift); một enum dùng chung sẽ sửa được.</li>
+      <li><strong>Payload có thể chứa dữ liệu nhạy cảm.</strong> Bất cứ thứ gì trong request đều nằm trong DB dưới
+      dạng JSON thuần; production cần redaction ở cấp field và một chính sách lưu trữ (retention policy).</li>
+      <li><strong>Ghi đồng bộ trên đường nóng (hot path)</strong> — một DB bị khóa hoặc chậm sẽ cộng thẳng vào
+      latency của người dùng.</li>
     </ul>
   </div>
 
   <div class="callout trade">
-    <div class="title">Production tradeoffs</div>
+    <div class="title">Đánh đổi khi lên production</div>
     <ul>
-      <li>High-volume systems make this asynchronous: emit an event to Kafka/Kinesis, aggregate into a warehouse
-      (BigQuery/ClickHouse), keep only recent hot data in an OLTP store.</li>
-      <li>Metrics that monitoring reads every few seconds should come from a metrics pipeline
-      (Prometheus counters/histograms), not from re-scanning an audit table.</li>
-      <li>Add partitioning/TTL on the table — audit logs grow monotonically forever otherwise.</li>
+      <li>Hệ thống lưu lượng cao làm việc này bất đồng bộ: phát event sang Kafka/Kinesis, tổng hợp vào warehouse
+      (BigQuery/ClickHouse), chỉ giữ dữ liệu "nóng" gần đây trong một store OLTP.</li>
+      <li>Các metric mà monitoring đọc vài giây một lần nên đến từ một pipeline metrics
+      (counter/histogram của Prometheus), chứ không phải quét lại một bảng audit.</li>
+      <li>Thêm partitioning/TTL cho bảng — nếu không, log audit tăng đơn điệu mãi mãi.</li>
     </ul>
   </div>
 
   <div class="callout talk">
-    <div class="title">Interview talking points</div>
+    <div class="title">Điểm nói chuyện phỏng vấn</div>
     <ul>
-      <li>"Every prediction is auditable: request ID, model version, inputs, latency. That's the difference between an
-      ML demo and an ML system — you can answer 'why did the model say that, and which model was it?'"</li>
-      <li>"I'd separate the two workloads this table currently serves: audit (append-only, long retention) and
-      metrics (pre-aggregated, short retention). Coupling them is the current design's main debt."</li>
+      <li>"Mọi prediction đều audit được: request ID, model version, input, latency. Đó là điểm khác biệt giữa một
+      bản demo ML và một hệ thống ML — bạn có thể trả lời 'tại sao model nói vậy, và đó là model nào?'"</li>
+      <li>"Tôi sẽ tách hai workload mà bảng này hiện đang phục vụ: audit (append-only, lưu lâu) và
+      metrics (tổng hợp trước, lưu ngắn). Ghép chung chúng là khoản nợ chính của thiết kế hiện tại."</li>
     </ul>
   </div>
 </section>
@@ -734,80 +750,87 @@ explanation = model_version.model_instance.explain(features)
 <!-- ============================================================ -->
 <section id="embedding-service">
   <span class="tag svc">Service · RAG</span>
-  <h2><code>services/embedding_service.py</code> — Pluggable text embeddings</h2>
+  <h2><code>services/embedding_service.py</code> — Text embeddings có thể hoán đổi (pluggable)</h2>
 
-  <h3>Purpose</h3>
+  <h3>Mục đích</h3>
   <p>
-    Turns text into L2-normalized vectors for similarity search, behind a swappable backend. It also owns the
-    <strong>lazy, thread-safe bootstrap</strong> of the vector store: the first embed call embeds all seeded documents
-    exactly once (double-checked locking) so the store is queryable without an explicit indexing step.
+    Biến văn bản thành các vector chuẩn hóa L2 để tìm kiếm tương đồng, đứng sau một backend hoán đổi được. Nó cũng
+    sở hữu phần <strong>bootstrap lười, an toàn với thread</strong> của vector store: lần gọi embed đầu tiên sẽ
+    embed toàn bộ tài liệu đã seed đúng một lần (double-checked locking) để store có thể truy vấn được mà không cần
+    một bước indexing tường minh.
   </p>
 
-  <h3>Key pieces</h3>
+  <h3>Các thành phần chính</h3>
   <div class="tbl-wrap"><table>
-    <tr><th>Member</th><th>What it does</th></tr>
+    <tr><th>Thành phần</th><th>Chức năng</th></tr>
     <tr><td><code>EmbeddingBackend</code> (Protocol)</td>
-        <td>Structural interface: <code>embed(text) → ndarray</code>, <code>embed_batch(texts) → ndarray</code>.
-        No inheritance required — duck typing checked statically.</td></tr>
+        <td>Interface cấu trúc (structural): <code>embed(text) → ndarray</code>,
+        <code>embed_batch(texts) → ndarray</code>. Không cần kế thừa — duck typing được kiểm tra tĩnh.</td></tr>
     <tr><td><code>MockEmbedding</code></td>
         <td><code>HashingVectorizer(n_features=256, norm="l2", alternate_sign=False)</code>. Deterministic,
-        stateless (no vocabulary to fit), no model download. Re-normalizes defensively against zero vectors.</td></tr>
+        stateless (không có vocabulary phải fit), không cần tải model. Chuẩn hóa lại một cách phòng thủ để chống
+        vector không (zero vector).</td></tr>
     <tr><td><code>SentenceTransformerEmbedding</code></td>
-        <td>all-MiniLM-L6-v2 with <code>normalize_embeddings=True</code>. Import is inside <code>__init__</code> so
-        the dependency is optional; a clear <code>ImportError</code> message tells you how to install it.</td></tr>
+        <td>all-MiniLM-L6-v2 với <code>normalize_embeddings=True</code>. Import nằm bên trong
+        <code>__init__</code> nên dependency là tùy chọn; một thông điệp <code>ImportError</code> rõ ràng cho bạn
+        biết cách cài đặt.</td></tr>
     <tr><td><code>EmbeddingService._ensure_store_embeddings()</code></td>
-        <td>Double-checked lock: if the store has documents but no embeddings yet, batch-embed all chunk texts and
-        attach the matrix. Runs at most once per process.</td></tr>
+        <td>Double-checked lock: nếu store có tài liệu nhưng chưa có embeddings, batch-embed toàn bộ text của các
+        chunk và gắn ma trận vào. Chạy nhiều nhất một lần mỗi process.</td></tr>
     <tr><td><code>get_embedding_service()</code></td>
-        <td>Thread-safe singleton (lock-guarded), unlike the simpler singletons elsewhere — embeddings can be hit
-        concurrently by RAG and evaluation.</td></tr>
+        <td>Singleton an toàn với thread (bảo vệ bằng lock), khác với các singleton đơn giản hơn ở nơi khác —
+        embeddings có thể bị gọi đồng thời bởi RAG và evaluation.</td></tr>
   </table></div>
 
   <div class="callout why">
-    <div class="title">Why HashingVectorizer for the mock</div>
-    <p>Random vectors would make retrieval tests meaningless; a real transformer makes CI slow and network-dependent.
-    The hashing trick is the middle path: token counts are hashed into a fixed 256-dim space, so texts that share
-    words genuinely land near each other under cosine similarity. The whole pipeline — search, permission filter,
-    rerank, evaluation metrics — is exercised with <em>real</em> signal, deterministically, in milliseconds.</p>
+    <div class="title">Tại sao dùng HashingVectorizer cho bản mock</div>
+    <p>Vector ngẫu nhiên sẽ khiến các test retrieval trở nên vô nghĩa; một transformer thật làm CI chậm và phụ
+    thuộc mạng. Hashing trick là con đường ở giữa: số đếm token được hash vào một không gian 256 chiều cố định,
+    nên các văn bản chia sẻ từ ngữ thật sự nằm gần nhau dưới cosine similarity. Toàn bộ pipeline — search, lọc
+    quyền, rerank, các metric evaluation — được kiểm thử với tín hiệu <em>thật</em>, deterministic, trong vài
+    mili giây.</p>
   </div>
 
   <div class="callout warn">
-    <div class="title">What can go wrong</div>
+    <div class="title">Những gì có thể sai</div>
     <ul>
-      <li><strong>Backend switch invalidates every stored vector.</strong> Mock (256-dim, lexical) and MiniLM (384-dim,
-      semantic) are incompatible spaces; flipping <code class="inline">embedding_provider</code> without re-embedding
-      the store gives shape errors or garbage similarities. Rule: <em>embedding model version is part of the index
-      schema.</em></li>
-      <li><strong>Hash collisions:</strong> at 256 features, unrelated tokens share buckets. Harmless for a demo,
-      but explains occasional odd retrievals; raise <code class="inline">n_features</code> if it bites.</li>
-      <li><strong>No synonym understanding:</strong> the mock is purely lexical — "cost" will not match "pricing".
-      Golden-set evaluation numbers must be interpreted with that in mind.</li>
-      <li><strong>Bootstrap ordering:</strong> <code class="inline">_ensure_store_embeddings</code> only runs from
-      <code class="inline">embed()</code>. Documents added later via <code class="inline">add_documents()</code>
-      without embeddings will never be indexed, because <code class="inline">_initialized</code> is already true.</li>
+      <li><strong>Đổi backend làm vô hiệu mọi vector đã lưu.</strong> Mock (256 chiều, lexical) và MiniLM (384
+      chiều, semantic) là hai không gian không tương thích; bật <code class="inline">embedding_provider</code>
+      mà không re-embed store sẽ cho lỗi shape hoặc các độ tương đồng rác. Quy tắc: <em>version của embedding
+      model là một phần của schema index.</em></li>
+      <li><strong>Va chạm hash:</strong> ở 256 feature, các token không liên quan dùng chung bucket. Vô hại với
+      demo, nhưng giải thích cho những lần retrieval kỳ lạ thỉnh thoảng xảy ra; tăng
+      <code class="inline">n_features</code> nếu nó gây phiền.</li>
+      <li><strong>Không hiểu từ đồng nghĩa:</strong> bản mock thuần lexical — "cost" sẽ không khớp với "pricing".
+      Các con số đánh giá golden-set phải được diễn giải với điều đó trong đầu.</li>
+      <li><strong>Thứ tự bootstrap:</strong> <code class="inline">_ensure_store_embeddings</code> chỉ chạy từ
+      <code class="inline">embed()</code>. Tài liệu thêm sau này qua <code class="inline">add_documents()</code>
+      mà không kèm embeddings sẽ không bao giờ được index, vì <code class="inline">_initialized</code> đã là
+      true.</li>
     </ul>
   </div>
 
   <div class="callout trade">
-    <div class="title">Production tradeoffs</div>
+    <div class="title">Đánh đổi khi lên production</div>
     <ul>
-      <li>Real deployments use a hosted embedding API or a GPU-served model, with batching, retry/backoff, and an
-      embedding cache (embeddings are pure functions of text — perfect cache candidates).</li>
-      <li>Index migrations become a first-class operation: blue/green indexes, re-embed offline, cut over atomically.</li>
-      <li>Track embedding latency and dimensionality as config, not constants.</li>
+      <li>Triển khai thật dùng một embedding API được host hoặc một model chạy trên GPU, với batching,
+      retry/backoff, và một embedding cache (embeddings là hàm thuần túy của văn bản — ứng viên cache hoàn hảo).</li>
+      <li>Migration cho index trở thành một thao tác hạng nhất: index blue/green, re-embed offline, chuyển đổi
+      (cut over) một cách atomic.</li>
+      <li>Theo dõi latency của embedding và đưa số chiều vào config, thay vì hằng số.</li>
     </ul>
   </div>
 
   <div class="callout talk">
-    <div class="title">Interview talking points</div>
+    <div class="title">Điểm nói chuyện phỏng vấn</div>
     <ul>
-      <li>"I used a Protocol instead of an ABC — structural typing means any object with embed/embed_batch satisfies
-      the interface, which keeps test doubles trivial."</li>
-      <li>"The mock isn't random — HashingVectorizer gives deterministic lexical similarity, so retrieval tests assert
-      real behavior. And the design forces the right production question: what happens to your index when the
-      embedding model changes?"</li>
-      <li>"Double-checked locking on both the singleton and the store bootstrap — the naive lazy singleton has a race
-      under concurrent first requests."</li>
+      <li>"Tôi dùng Protocol thay vì ABC — structural typing nghĩa là bất kỳ object nào có embed/embed_batch đều
+      thỏa mãn interface, giúp các test double cực kỳ đơn giản."</li>
+      <li>"Bản mock không phải ngẫu nhiên — HashingVectorizer cho độ tương đồng lexical deterministic, nên các test
+      retrieval assert hành vi thật. Và thiết kế này buộc phải đặt đúng câu hỏi production: điều gì xảy ra với
+      index của bạn khi embedding model thay đổi?"</li>
+      <li>"Double-checked locking trên cả singleton lẫn bootstrap của store — lazy singleton ngây thơ có race
+      condition khi các request đầu tiên đến đồng thời."</li>
     </ul>
   </div>
 </section>
@@ -815,73 +838,78 @@ explanation = model_version.model_instance.explain(features)
 <!-- ============================================================ -->
 <section id="permission-service">
   <span class="tag svc">Service · RAG</span>
-  <h2><code>services/permission_service.py</code> — Role-based document access</h2>
+  <h2><code>services/permission_service.py</code> — Truy cập tài liệu theo role</h2>
 
-  <h3>Purpose</h3>
+  <h3>Mục đích</h3>
   <p>
-    Pure, stateless authorization logic for the RAG pipeline. Defines a four-level role hierarchy
-    (<code class="inline">admin=4 &gt; manager=3 &gt; analyst=2 &gt; viewer=1</code>) and produces the filter closure
-    that <code class="inline">VectorStore.search()</code> applies <em>before</em> ranking.
+    Logic phân quyền thuần túy, không trạng thái (stateless) cho pipeline RAG. Định nghĩa một hệ phân cấp role
+    bốn cấp (<code class="inline">admin=4 &gt; manager=3 &gt; analyst=2 &gt; viewer=1</code>) và sinh ra closure
+    filter mà <code class="inline">VectorStore.search()</code> áp dụng <em>trước</em> khi xếp hạng.
   </p>
 
-  <h3>Key functions</h3>
+  <h3>Các hàm chính</h3>
   <div class="tbl-wrap"><table>
-    <tr><th>Function</th><th>What it does</th></tr>
+    <tr><th>Hàm</th><th>Chức năng</th></tr>
     <tr><td><code>can_access(user_role, doc_metadata)</code></td>
-        <td>True if the role is explicitly listed in the doc's <code>allowed_roles</code>, or if the user's numeric
-        level ≥ the <em>minimum</em> level among allowed roles (hierarchical override: a manager can read anything an
-        analyst can).</td></tr>
+        <td>True nếu role được liệt kê tường minh trong <code>allowed_roles</code> của tài liệu, hoặc nếu cấp số
+        của người dùng ≥ cấp <em>thấp nhất</em> trong số các role được phép (ghi đè theo phân cấp: một manager
+        đọc được mọi thứ mà analyst đọc được).</td></tr>
     <tr><td><code>get_permission_filter(user_id, user_role)</code></td>
-        <td>Returns a <code>Callable[[dict], bool]</code> closure over the role, passed as
-        <code>filter_fn</code> into vector search. Its docstring documents the pre-retrieval security invariant.</td></tr>
+        <td>Trả về một closure <code>Callable[[dict], bool]</code> bao lấy role, được truyền làm
+        <code>filter_fn</code> vào vector search. Docstring của nó ghi rõ bất biến bảo mật pre-retrieval.</td></tr>
     <tr><td><code>get_accessible_doc_count(role, documents)</code></td>
-        <td>Counts accessible docs — used by <code>RagService</code> to report
-        <code>permission_filtered_count</code> transparently in responses.</td></tr>
+        <td>Đếm số tài liệu truy cập được — dùng bởi <code>RagService</code> để báo cáo
+        <code>permission_filtered_count</code> một cách minh bạch trong response.</td></tr>
   </table></div>
 
   <div class="callout why">
-    <div class="title">Why pre-retrieval filtering (the security invariant)</div>
-    <p>Filtering after ranking leaks information two ways: result-count changes reveal that hidden documents exist,
-    and restricted text may reach the reranker or answer generator before being dropped. Applying the filter before
-    similarity computation means unauthorized content never enters the pipeline at all. This is the RAG-era version of
-    row-level security — and it's the single most common security bug in production RAG systems.</p>
+    <div class="title">Tại sao lọc trước retrieval (bất biến bảo mật)</div>
+    <p>Lọc sau khi xếp hạng làm rò rỉ thông tin theo hai cách: thay đổi số lượng kết quả tiết lộ rằng tài liệu ẩn
+    tồn tại, và văn bản bị hạn chế có thể đã đến được reranker hoặc bộ sinh câu trả lời trước khi bị loại. Áp dụng
+    filter trước khi tính độ tương đồng nghĩa là nội dung không được phép không bao giờ đi vào pipeline. Đây là
+    phiên bản thời-RAG của row-level security — và cũng là lỗi bảo mật phổ biến nhất trong các hệ thống RAG
+    production.</p>
   </div>
 
   <div class="callout warn">
-    <div class="title">What can go wrong</div>
+    <div class="title">Những gì có thể sai</div>
     <ul>
-      <li><strong>Missing metadata fails open-ish:</strong> a doc with no <code class="inline">allowed_roles</code>
-      yields <code class="inline">min(default=0)</code>, so <em>every known role</em> (level ≥ 1) can access it.
-      For sensitive corpora you'd want fail-closed: no metadata → no access.</li>
-      <li><strong>Unknown roles map to level 0</strong> and are denied by the hierarchy — but note
-      <code class="inline">RagService</code> already rejects unknown roles before this layer runs (defense in depth).</li>
-      <li><strong><code class="inline">user_id</code> is accepted but unused</strong> — the API is shaped for per-user
-      ACLs/tenancy but only role is enforced today. Don't claim user-level isolation in a review.</li>
-      <li><strong>Linear-scan cost:</strong> the closure runs per document per query. Invisible at demo size; a real
-      vector DB needs this as an indexed metadata pre-filter, not a Python callback.</li>
+      <li><strong>Metadata thiếu thì "fail open" một phần:</strong> một tài liệu không có
+      <code class="inline">allowed_roles</code> cho ra <code class="inline">min(default=0)</code>, nên <em>mọi
+      role đã biết</em> (cấp ≥ 1) đều truy cập được. Với các kho tài liệu nhạy cảm, bạn sẽ muốn fail-closed:
+      không có metadata → không truy cập.</li>
+      <li><strong>Role không xác định ánh xạ về cấp 0</strong> và bị hệ phân cấp từ chối — nhưng lưu ý
+      <code class="inline">RagService</code> đã từ chối role không xác định trước khi tầng này chạy
+      (phòng thủ nhiều lớp — defense in depth).</li>
+      <li><strong><code class="inline">user_id</code> được nhận nhưng không dùng</strong> — API được tạo hình cho
+      ACL/tenancy theo từng người dùng nhưng hôm nay chỉ role được thực thi. Đừng tuyên bố có cô lập cấp người
+      dùng trong một buổi review.</li>
+      <li><strong>Chi phí quét tuyến tính:</strong> closure chạy trên từng tài liệu cho mỗi truy vấn. Vô hình ở
+      kích thước demo; một vector DB thật cần cái này ở dạng pre-filter theo metadata có index, không phải một
+      callback Python.</li>
     </ul>
   </div>
 
   <div class="callout trade">
-    <div class="title">Production tradeoffs</div>
+    <div class="title">Đánh đổi khi lên production</div>
     <ul>
-      <li>Real vector DBs (pgvector WHERE clauses, Qdrant/Pinecone metadata filters, OpenSearch DLS) push the filter
-      into the index so filtering stays sublinear.</li>
-      <li>Roles would come from a JWT/OIDC claim validated by middleware, not a request body field — the current
-      design trusts the caller's self-declared role.</li>
-      <li>Add audit logging of denied accesses, and per-tenant namespaces for multi-tenancy.</li>
+      <li>Các vector DB thật (mệnh đề WHERE của pgvector, metadata filter của Qdrant/Pinecone, DLS của
+      OpenSearch) đẩy filter vào trong index để việc lọc luôn dưới tuyến tính (sublinear).</li>
+      <li>Role nên đến từ một claim JWT/OIDC được middleware xác thực, không phải một field trong request body —
+      thiết kế hiện tại tin vào role do caller tự khai.</li>
+      <li>Thêm audit logging cho các lần truy cập bị từ chối, và namespace theo tenant cho multi-tenancy.</li>
     </ul>
   </div>
 
   <div class="callout talk">
-    <div class="title">Interview talking points</div>
+    <div class="title">Điểm nói chuyện phỏng vấn</div>
     <ul>
-      <li>"Pre-retrieval permission filtering is my go-to RAG security answer: post-filtering leaks document existence
-      through result counts and lets restricted text reach downstream components."</li>
-      <li>"The service is pure functions over dicts — no I/O, no state — so the security-critical logic is trivially
-      unit-testable, which is exactly where you want your test density."</li>
-      <li>"I also surface <code class="inline">permission_filtered_count</code> in responses — users can see that
-      results were withheld without seeing what, which builds trust in the system."</li>
+      <li>"Lọc quyền pre-retrieval là câu trả lời tủ của tôi về bảo mật RAG: lọc sau (post-filtering) làm rò rỉ
+      sự tồn tại của tài liệu qua số lượng kết quả và để văn bản bị hạn chế đến được các thành phần phía sau."</li>
+      <li>"Service này là các hàm thuần túy trên dict — không I/O, không trạng thái — nên phần logic then chốt về
+      bảo mật cực kỳ dễ unit-test, đúng nơi bạn muốn dồn mật độ test."</li>
+      <li>"Tôi cũng đưa <code class="inline">permission_filtered_count</code> vào response — người dùng thấy được
+      rằng có kết quả bị giữ lại mà không thấy nội dung nào, điều này xây dựng niềm tin vào hệ thống."</li>
     </ul>
   </div>
 </section>
@@ -889,61 +917,64 @@ explanation = model_version.model_instance.explain(features)
 <!-- ============================================================ -->
 <section id="retrieval-service">
   <span class="tag svc">Service · RAG</span>
-  <h2><code>services/retrieval_service.py</code> — Secure semantic retrieval</h2>
+  <h2><code>services/retrieval_service.py</code> — Retrieval ngữ nghĩa an toàn</h2>
 
-  <h3>Purpose</h3>
+  <h3>Mục đích</h3>
   <p>
-    A small but deliberate composition point: it is the <em>only</em> code path that touches the vector store for
-    queries, and it guarantees that every search is (1) embedded with the configured backend and (2) wrapped in the
-    caller's permission filter. Security by construction — you cannot reach the store without going through the filter.
+    Một điểm ghép nhỏ nhưng có chủ đích: nó là đường code <em>duy nhất</em> chạm vào vector store cho các truy
+    vấn, và nó bảo đảm rằng mọi tìm kiếm đều (1) được embed bằng backend đã cấu hình và (2) được bọc trong
+    permission filter của caller. Bảo mật bằng cấu trúc (security by construction) — bạn không thể chạm tới store
+    mà không đi qua filter.
   </p>
 
-  <h3>Key function</h3>
+  <h3>Hàm chính</h3>
 <pre><span class="k">def</span> <span class="f">retrieve</span>(self, query, user_id, user_role, top_k=<span class="n">5</span>):
-    query_embedding = get_embedding_service().embed(query)          <span class="c"># also lazily indexes the store</span>
-    permission_filter = get_permission_filter(user_id, user_role)   <span class="c"># closure over role</span>
+    query_embedding = get_embedding_service().embed(query)          <span class="c"># đồng thời index store một cách lazy</span>
+    permission_filter = get_permission_filter(user_id, user_role)   <span class="c"># closure bao lấy role</span>
     <span class="k">return</span> get_vector_store().search(
         query_embedding=query_embedding, top_k=top_k, filter_fn=permission_filter)</pre>
 
   <div class="callout why">
-    <div class="title">Why a dedicated layer for 15 lines</div>
-    <p>If <code class="inline">RagService</code> called the store directly, the permission filter would be an optional
-    argument someone could forget. Funneling all retrieval through one method makes the secure path the only path —
-    the same reason you wrap raw SQL behind repositories. It's also the seam for future retrieval upgrades (hybrid
-    BM25+vector, multi-query expansion, HyDE) without touching RAG orchestration.</p>
+    <div class="title">Tại sao cần một tầng riêng cho 15 dòng code</div>
+    <p>Nếu <code class="inline">RagService</code> gọi thẳng vào store, permission filter sẽ là một tham số tùy
+    chọn mà ai đó có thể quên. Dồn mọi retrieval qua một method duy nhất khiến con đường an toàn trở thành con
+    đường duy nhất — cùng lý do bạn bọc SQL thô sau các repository. Đây cũng là đường nối cho các nâng cấp
+    retrieval tương lai (hybrid BM25+vector, multi-query expansion, HyDE) mà không đụng đến phần điều phối RAG.</p>
   </div>
 
   <div class="callout warn">
-    <div class="title">What can go wrong</div>
+    <div class="title">Những gì có thể sai</div>
     <ul>
-      <li><strong>Empty results are ambiguous:</strong> "no similar docs", "all docs filtered by permissions", and
-      "store not yet indexed" all return <code class="inline">[]</code>. When debugging empty RAG answers, check
-      <code class="inline">store.embeddings is not None</code> first, then the role's accessible-doc count.</li>
-      <li><strong>No score threshold:</strong> top-k always returns k results if any candidates exist, even at cosine
-      similarity ≈ 0. Downstream grounding quality depends on the reranker demoting junk; production should apply a
-      minimum-similarity cutoff.</li>
-      <li><strong>Service-locator wiring</strong> (<code class="inline">get_*()</code> calls inside the method) is
-      convenient but hides dependencies — tests must patch module-level singletons rather than inject fakes.</li>
+      <li><strong>Kết quả rỗng là mơ hồ:</strong> "không có tài liệu tương tự", "mọi tài liệu bị lọc bởi quyền",
+      và "store chưa được index" đều trả về <code class="inline">[]</code>. Khi debug câu trả lời RAG rỗng, kiểm
+      tra <code class="inline">store.embeddings is not None</code> trước, rồi đến số tài liệu truy cập được của
+      role đó.</li>
+      <li><strong>Không có ngưỡng điểm:</strong> top-k luôn trả về k kết quả nếu tồn tại ứng viên nào đó, kể cả
+      khi cosine similarity ≈ 0. Chất lượng grounding phía sau phụ thuộc vào việc reranker hạ bậc kết quả rác;
+      production nên áp dụng một ngưỡng tương đồng tối thiểu (minimum-similarity cutoff).</li>
+      <li><strong>Nối dây kiểu service-locator</strong> (các lời gọi <code class="inline">get_*()</code> bên trong
+      method) tiện lợi nhưng che giấu dependency — test phải patch các singleton cấp module thay vì inject
+      fake.</li>
     </ul>
   </div>
 
   <div class="callout trade">
-    <div class="title">Production tradeoffs</div>
+    <div class="title">Đánh đổi khi lên production</div>
     <ul>
-      <li>Hybrid retrieval (dense + BM25 with reciprocal-rank fusion) typically beats either alone on enterprise
-      corpora — this class is where it would land.</li>
-      <li>Add retrieval telemetry: per-query candidate counts, similarity score distributions, filter rejection
-      counts. Silent retrieval degradation is the most common cause of "the RAG got worse".</li>
+      <li>Hybrid retrieval (dense + BM25 với reciprocal-rank fusion) thường thắng cả hai cách riêng lẻ trên các
+      kho tài liệu doanh nghiệp — class này là nơi nó sẽ được đặt vào.</li>
+      <li>Thêm telemetry cho retrieval: số ứng viên theo từng truy vấn, phân phối điểm tương đồng, số lần bị
+      filter loại. Suy giảm retrieval âm thầm là nguyên nhân phổ biến nhất của "RAG dạo này tệ đi".</li>
     </ul>
   </div>
 
   <div class="callout talk">
-    <div class="title">Interview talking points</div>
+    <div class="title">Điểm nói chuyện phỏng vấn</div>
     <ul>
-      <li>"Retrieval is a single choke point that makes permission filtering non-optional — security by construction
-      rather than by convention."</li>
-      <li>"I over-fetch at the caller (2×top_k) so the reranker has candidates to work with — retrieval recall and
-      final precision are separate dials."</li>
+      <li>"Retrieval là một điểm thắt (choke point) duy nhất khiến việc lọc quyền trở thành không thể bỏ qua —
+      bảo mật bằng cấu trúc thay vì bằng quy ước."</li>
+      <li>"Tôi over-fetch ở phía caller (2×top_k) để reranker có ứng viên để làm việc — recall của retrieval và
+      precision cuối cùng là hai núm điều chỉnh riêng biệt."</li>
     </ul>
   </div>
 </section>
@@ -951,65 +982,67 @@ explanation = model_version.model_instance.explain(features)
 <!-- ============================================================ -->
 <section id="rerank-service">
   <span class="tag svc">Service · RAG</span>
-  <h2><code>services/rerank_service.py</code> — Hybrid second-stage ranking</h2>
+  <h2><code>services/rerank_service.py</code> — Xếp hạng lai giai đoạn hai (hybrid rerank)</h2>
 
-  <h3>Purpose</h3>
+  <h3>Mục đích</h3>
   <p>
-    The second stage of a two-stage retrieval funnel. First-stage vector search optimizes recall (fetch 2×top_k
-    candidates cheaply); the reranker optimizes precision by blending the vector score with exact keyword overlap:
-    <code class="inline">combined = 0.6 · vector_score + 0.4 · keyword_score</code>, where keyword_score is the
-    fraction of query words present in the chunk.
+    Giai đoạn thứ hai của phễu retrieval hai giai đoạn. Giai đoạn một — vector search — tối ưu recall (lấy 2×top_k
+    ứng viên với chi phí rẻ); reranker tối ưu precision bằng cách trộn điểm vector với độ trùng lặp từ khóa chính
+    xác: <code class="inline">combined = 0.6 · vector_score + 0.4 · keyword_score</code>, trong đó keyword_score
+    là tỷ lệ từ trong câu hỏi xuất hiện trong chunk.
   </p>
 
-  <h3>Key function</h3>
+  <h3>Hàm chính</h3>
   <div class="tbl-wrap"><table>
-    <tr><th>Member</th><th>What it does</th></tr>
+    <tr><th>Thành phần</th><th>Chức năng</th></tr>
     <tr><td><code>rerank(query, chunks, top_k)</code></td>
-        <td>Tokenizes query and each chunk into lowercase word sets, computes overlap ratio
-        <code>|Q ∩ C| / |Q|</code>, blends with the original score 60/40, sorts descending, truncates to top_k.
-        Guards the divide-by-zero on empty queries.</td></tr>
+        <td>Token hóa câu hỏi và từng chunk thành các tập từ viết thường, tính tỷ lệ trùng lặp
+        <code>|Q ∩ C| / |Q|</code>, trộn với điểm gốc theo tỷ lệ 60/40, sort giảm dần, cắt còn top_k.
+        Có guard chống chia cho 0 với câu hỏi rỗng.</td></tr>
   </table></div>
 
   <div class="callout why">
-    <div class="title">Why hybrid scoring</div>
-    <p>Dense embeddings can rank a vaguely-related chunk above one containing the user's exact term (especially with
-    small embedding models); pure keyword matching misses paraphrases. Blending recovers exact-term precision while
-    keeping semantic recall — a stand-in for the cross-encoder rerankers used in production, with the identical
-    interface (query + candidates in, re-scored top_k out).</p>
+    <div class="title">Tại sao chấm điểm lai (hybrid)</div>
+    <p>Dense embeddings có thể xếp một chunk liên quan mơ hồ lên trên một chunk chứa đúng thuật ngữ của người dùng
+    (đặc biệt với các embedding model nhỏ); còn khớp từ khóa thuần túy thì bỏ lỡ các cách diễn đạt lại
+    (paraphrase). Trộn hai điểm giúp lấy lại precision theo đúng thuật ngữ trong khi vẫn giữ recall ngữ nghĩa —
+    một bản thế chỗ cho các cross-encoder reranker dùng trong production, với interface giống hệt (nhận query +
+    ứng viên, trả top_k đã chấm điểm lại).</p>
   </div>
 
   <div class="callout warn">
-    <div class="title">What can go wrong</div>
+    <div class="title">Những gì có thể sai</div>
     <ul>
-      <li><strong>Naive tokenization:</strong> <code class="inline">split()</code> keeps punctuation
-      ("pricing?" ≠ "pricing"), no stemming, and stop-words ("the", "is") count as matches — inflating keyword scores
-      for chunks that share only filler words. Debugging tip: print both score components when a bad chunk wins.</li>
-      <li><strong>Score scale mixing:</strong> the blend assumes both components live in [0,1]. Cosine scores from the
-      normalized mock embeddings do, but a different first-stage scorer (e.g. inner product, BM25) would silently
-      skew the 60/40 balance.</li>
-      <li><strong>Hardcoded weights:</strong> 0.6/0.4 was picked by intuition, not tuned. The evaluation service is
-      exactly the harness you'd use to tune it — mention that pairing.</li>
+      <li><strong>Token hóa ngây thơ:</strong> <code class="inline">split()</code> giữ nguyên dấu câu
+      ("pricing?" ≠ "pricing"), không có stemming, và stop-word ("the", "is") cũng được tính là khớp — thổi phồng
+      keyword score cho các chunk chỉ chia sẻ từ đệm. Mẹo debug: in cả hai thành phần điểm khi một chunk tệ
+      thắng cuộc.</li>
+      <li><strong>Trộn lẫn thang điểm:</strong> phép trộn giả định cả hai thành phần nằm trong [0,1]. Điểm cosine
+      từ các mock embedding đã chuẩn hóa thì đúng vậy, nhưng một bộ chấm giai đoạn một khác (ví dụ inner product,
+      BM25) sẽ âm thầm làm lệch cán cân 60/40.</li>
+      <li><strong>Trọng số hardcode:</strong> 0.6/0.4 được chọn theo trực giác, chưa được tune. Evaluation service
+      chính là bộ khung bạn sẽ dùng để tune nó — hãy nhắc đến sự ghép cặp đó.</li>
     </ul>
   </div>
 
   <div class="callout trade">
-    <div class="title">Production tradeoffs</div>
+    <div class="title">Đánh đổi khi lên production</div>
     <ul>
-      <li>Replace with a <strong>cross-encoder</strong> (e.g. ms-marco-MiniLM) or a hosted reranker (Cohere Rerank).
-      Cross-encoders attend over (query, chunk) jointly — much more accurate, ~10–50 ms per candidate, which is
-      precisely why you only run them on a small candidate set from stage one.</li>
-      <li>The funnel shape is the durable idea: <em>cheap-and-broad, then expensive-and-narrow</em>. Same pattern as
-      recommender candidate-generation → ranking.</li>
+      <li>Thay bằng một <strong>cross-encoder</strong> (ví dụ ms-marco-MiniLM) hoặc một reranker được host
+      (Cohere Rerank). Cross-encoder attend trên cặp (query, chunk) cùng lúc — chính xác hơn nhiều, ~10–50 ms mỗi
+      ứng viên, và đó chính là lý do bạn chỉ chạy chúng trên tập ứng viên nhỏ từ giai đoạn một.</li>
+      <li>Hình dạng cái phễu mới là ý tưởng bền vững: <em>rẻ-và-rộng, rồi đắt-và-hẹp</em>. Cùng pattern với
+      candidate-generation → ranking trong hệ thống gợi ý (recommender).</li>
     </ul>
   </div>
 
   <div class="callout talk">
-    <div class="title">Interview talking points</div>
+    <div class="title">Điểm nói chuyện phỏng vấn</div>
     <ul>
-      <li>"Two-stage retrieval: bi-encoder for recall, reranker for precision. My reranker is a keyword-overlap
-      hybrid, but the interface is exactly where a cross-encoder drops in."</li>
-      <li>"Retrieval quality changes should be gated by the golden-set evaluation — rerank weights are a tunable, and
-      recall@k / citation accuracy are the objective."</li>
+      <li>"Retrieval hai giai đoạn: bi-encoder cho recall, reranker cho precision. Reranker của tôi là bản lai
+      keyword-overlap, nhưng interface chính là chỗ một cross-encoder sẽ được lắp vào."</li>
+      <li>"Các thay đổi về chất lượng retrieval nên được gác cổng bởi đánh giá golden-set — trọng số rerank là
+      thứ tune được, còn recall@k / độ chính xác citation là hàm mục tiêu."</li>
     </ul>
   </div>
 </section>
@@ -1017,86 +1050,95 @@ explanation = model_version.model_instance.explain(features)
 <!-- ============================================================ -->
 <section id="rag-service">
   <span class="tag svc">Service · RAG</span>
-  <h2><code>services/rag_service.py</code> — RAG pipeline orchestrator</h2>
+  <h2><code>services/rag_service.py</code> — Bộ điều phối pipeline RAG</h2>
 
-  <h3>Purpose</h3>
+  <h3>Mục đích</h3>
   <p>
-    Orchestrates the full question-answering flow: role validation → cache → retrieval (over-fetched) →
-    rerank → answer synthesis → citations → cache write → history log. Also computes transparency metadata:
-    <code class="inline">permission_filtered_count</code> (how many docs the caller could not see) and
-    <code class="inline">grounded</code> (whether the answer is backed by retrieved text).
+    Điều phối toàn bộ luồng hỏi–đáp: kiểm tra role → cache → retrieval (over-fetch) → rerank → tổng hợp câu trả
+    lời → citations → ghi cache → ghi log history. Nó cũng tính metadata minh bạch:
+    <code class="inline">permission_filtered_count</code> (bao nhiêu tài liệu caller không được thấy) và
+    <code class="inline">grounded</code> (câu trả lời có được chống lưng bởi văn bản đã truy xuất hay không).
   </p>
 
-  <h3>Key functions</h3>
+  <h3>Các hàm chính</h3>
   <div class="tbl-wrap"><table>
-    <tr><th>Member</th><th>What it does</th></tr>
+    <tr><th>Thành phần</th><th>Chức năng</th></tr>
     <tr><td><code>query(user_id, role, query_text, top_k)</code></td>
-        <td>Rejects unknown roles up front (uniform "Access denied" body, no exception). Checks cache keyed on
-        <code>(role, query)</code>. On miss: retrieves <code>top_k * 2</code> candidates through the permission-aware
-        retriever, computes filtered-count transparency stats, short-circuits with a graceful
-        <code>grounded=False</code> body when nothing is retrievable, else reranks to top_k, generates the answer,
-        builds citations with rounded relevance scores, caches a <em>copy</em> of the response, and logs history.</td></tr>
+        <td>Từ chối role không xác định ngay từ đầu (body "Access denied" đồng nhất, không raise exception).
+        Kiểm tra cache với khóa <code>(role, query)</code>. Nếu miss: truy xuất <code>top_k * 2</code> ứng viên
+        qua retriever nhận biết quyền, tính số liệu minh bạch về filtered-count, kết thúc sớm với body
+        <code>grounded=False</code> một cách êm thấm khi không truy xuất được gì, ngược lại rerank về top_k, sinh
+        câu trả lời, dựng citations với điểm relevance đã làm tròn, cache một <em>bản copy</em> của response, và
+        ghi log history.</td></tr>
     <tr><td><code>_generate_answer(query, chunks)</code></td>
-        <td>Mock extractive generator: takes the first sentence of the top 3 chunks, attributes each with
-        <code>[Source: title]</code>, and appends a grounding note. If <code>llm_provider != "mock"</code> it returns
-        a placeholder — the seam where a real LLM call goes.</td></tr>
+        <td>Bộ sinh trích xuất (extractive) mock: lấy câu đầu tiên của 3 chunk hàng đầu, gắn nguồn cho mỗi câu
+        bằng <code>[Source: title]</code>, và nối thêm một ghi chú về grounding. Nếu
+        <code>llm_provider != "mock"</code> nó trả về một placeholder — đây là đường nối nơi lời gọi LLM thật sẽ
+        được đặt vào.</td></tr>
     <tr><td><code>_get_cache_service_safe()</code> / <code>_get_history_service_safe()</code></td>
-        <td>Late, exception-swallowing imports: cache and history are treated as <em>optional</em> dependencies.
-        If either fails to initialize, RAG still answers — graceful degradation of non-critical paths.</td></tr>
+        <td>Import muộn, nuốt exception: cache và history được coi là dependency <em>tùy chọn</em>.
+        Nếu một trong hai khởi tạo thất bại, RAG vẫn trả lời — suy giảm êm thấm (graceful degradation) của các
+        đường không then chốt.</td></tr>
   </table></div>
 
   <div class="callout why">
-    <div class="title">Why this shape</div>
+    <div class="title">Tại sao có hình dạng này</div>
     <ul>
-      <li><strong>Role in the cache key:</strong> answers are computed against a role-filtered corpus, so they are
-      only valid <em>for that role</em>. Caching on query alone would leak an admin's answer to a viewer.</li>
-      <li><strong>Over-fetch then rerank:</strong> stage one optimizes recall, stage two precision (see rerank section).</li>
-      <li><strong>Extractive mock answers:</strong> answers quote retrieved sentences verbatim with citations —
-      the mock cannot hallucinate, and it keeps the faithfulness metric in the evaluation honest.</li>
+      <li><strong>Role nằm trong khóa cache:</strong> câu trả lời được tính trên một kho tài liệu đã lọc theo
+      role, nên nó chỉ hợp lệ <em>cho role đó</em>. Cache chỉ theo câu hỏi sẽ làm rò rỉ câu trả lời của admin
+      sang viewer.</li>
+      <li><strong>Over-fetch rồi rerank:</strong> giai đoạn một tối ưu recall, giai đoạn hai tối ưu precision
+      (xem phần rerank).</li>
+      <li><strong>Câu trả lời mock kiểu trích xuất:</strong> câu trả lời trích nguyên văn các câu đã truy xuất kèm
+      citations — bản mock không thể "ảo giác" (hallucinate), và điều đó giữ cho metric faithfulness trong
+      evaluation được trung thực.</li>
     </ul>
   </div>
 
   <div class="callout warn">
-    <div class="title">What can go wrong</div>
+    <div class="title">Những gì có thể sai</div>
     <ul>
-      <li><strong>Cache-hit mutation aliasing:</strong> on a hit, the code mutates <code class="inline">cache_result</code>
-      in place (setting <code class="inline">cache_hit/request_id/latency_ms</code>) — and because the memory-tier
-      cache returns the stored dict <em>by reference</em>, those writes persist into the cached entry. It works here
-      because the same fields are overwritten every hit, but adding any conditional mutation would corrupt the cache.
-      The <code class="inline">.copy()</code> on the set path is the mirror-image protection.</li>
-      <li><strong><code class="inline">except (ImportError, Exception)</code></strong> in the safe getters is
-      redundant (Exception subsumes ImportError) and dangerously broad: a genuine cache bug (e.g. a corrupted DB)
-      silently turns caching off with no log line. Debugging tip: when cache_hit is永remotely always false, check
-      whether the safe getter is swallowing an exception.</li>
-      <li><strong>Cache staleness on corpus/permission change:</strong> keys are (role, query); re-indexing documents
-      or editing allowed_roles leaves stale answers until TTL. Production wants an index-version component in the key.</li>
-      <li><strong>Invalid role returns 200</strong> with an "Access denied" body rather than HTTP 403 — clients
-      can't distinguish auth failure by status code.</li>
+      <li><strong>Aliasing do mutate khi cache-hit:</strong> khi hit, code mutate
+      <code class="inline">cache_result</code> tại chỗ (đặt <code class="inline">cache_hit/request_id/latency_ms</code>)
+      — và vì cache tầng bộ nhớ trả về dict đã lưu <em>theo tham chiếu</em>, những lần ghi đó tồn tại luôn trong
+      entry đã cache. Ở đây nó chạy đúng vì cùng các field đó được ghi đè mỗi lần hit, nhưng thêm bất kỳ mutate
+      có điều kiện nào cũng sẽ làm hỏng cache. Lệnh <code class="inline">.copy()</code> trên đường set chính là
+      lớp bảo vệ đối xứng.</li>
+      <li><strong><code class="inline">except (ImportError, Exception)</code></strong> trong các safe getter vừa
+      thừa (Exception đã bao gồm ImportError) vừa rộng một cách nguy hiểm: một bug cache thật sự (ví dụ DB hỏng)
+      sẽ âm thầm tắt caching mà không có lấy một dòng log. Mẹo debug: khi cache_hit gần như luôn luôn false,
+      kiểm tra xem safe getter có đang nuốt exception không.</li>
+      <li><strong>Cache cũ khi corpus/quyền thay đổi:</strong> khóa là (role, query); re-index tài liệu hoặc sửa
+      allowed_roles sẽ để lại câu trả lời cũ cho tới khi hết TTL. Production muốn có một thành phần
+      index-version trong khóa.</li>
+      <li><strong>Role không hợp lệ trả về 200</strong> với body "Access denied" thay vì HTTP 403 — client không
+      thể phân biệt lỗi phân quyền qua status code.</li>
     </ul>
   </div>
 
   <div class="callout trade">
-    <div class="title">Production tradeoffs</div>
+    <div class="title">Đánh đổi khi lên production</div>
     <ul>
-      <li>The <code class="inline">_generate_answer</code> seam is where a real LLM (the config already carries
-      DeepSeek settings) slots in — with prompt templating, context-window budgeting, citation-constrained decoding,
-      and streaming responses.</li>
-      <li>Real systems add answer-quality guardrails: groundedness scoring against retrieved chunks, refusal on low
-      retrieval confidence, PII scrubbing of both query and answer.</li>
-      <li>Semantic caching (cache hit on <em>similar</em> queries, not exact strings) multiplies hit rates for
-      natural-language traffic — but must still respect the role dimension.</li>
+      <li>Đường nối <code class="inline">_generate_answer</code> là nơi một LLM thật sẽ được lắp vào (config đã
+      mang sẵn cấu hình DeepSeek) — với prompt templating, quản lý ngân sách context window, decoding ràng buộc
+      theo citation, và streaming response.</li>
+      <li>Hệ thống thật thêm các guardrail chất lượng câu trả lời: chấm điểm groundedness so với các chunk đã truy
+      xuất, từ chối trả lời khi độ tự tin retrieval thấp, lọc PII trong cả câu hỏi lẫn câu trả lời.</li>
+      <li>Semantic caching (cache hit trên các câu hỏi <em>tương tự</em>, không chỉ chuỗi khớp chính xác) nhân
+      tỷ lệ hit lên nhiều lần với lưu lượng ngôn ngữ tự nhiên — nhưng vẫn phải tôn trọng chiều role.</li>
     </ul>
   </div>
 
   <div class="callout talk">
-    <div class="title">Interview talking points</div>
+    <div class="title">Điểm nói chuyện phỏng vấn</div>
     <ul>
-      <li>"The RAG response is <em>observable</em>: grounded flag, citation scores, permission_filtered_count,
-      latency, cache_hit, request_id. When someone asks 'why did the assistant say that', every hop is answerable."</li>
-      <li>"Role-scoped caching is the subtle bit — the cache must be partitioned by every input that affected the
-      answer, and the visible corpus is one of those inputs."</li>
-      <li>"Cache and history are optional dependencies with graceful degradation; retrieval and permissions are not —
-      deciding which failures are survivable is the actual design work."</li>
+      <li>"Response của RAG là <em>quan sát được</em>: cờ grounded, điểm citation, permission_filtered_count,
+      latency, cache_hit, request_id. Khi ai đó hỏi 'tại sao assistant nói vậy', mọi bước nhảy đều trả lời
+      được."</li>
+      <li>"Caching theo phạm vi role là điểm tinh tế — cache phải được phân vùng theo mọi input đã ảnh hưởng đến
+      câu trả lời, và kho tài liệu nhìn thấy được là một trong các input đó."</li>
+      <li>"Cache và history là dependency tùy chọn với suy giảm êm thấm; retrieval và phân quyền thì không —
+      quyết định failure nào sống sót được mới là công việc thiết kế thực sự."</li>
     </ul>
   </div>
 </section>
@@ -1106,78 +1148,84 @@ explanation = model_version.model_instance.explain(features)
 <!-- ============================================================ -->
 <section id="batch-service">
   <span class="tag svc">Service · Ops</span>
-  <h2><code>services/batch_service.py</code> — Async CSV batch scoring</h2>
+  <h2><code>services/batch_service.py</code> — Chấm điểm batch CSV bất đồng bộ</h2>
 
-  <h3>Purpose</h3>
+  <h3>Mục đích</h3>
   <p>
-    Scores whole CSV files of suppliers without blocking the API: <code class="inline">start_job()</code> parses and
-    validates the CSV, persists a job row, spawns a daemon thread, and returns a job ID immediately. Clients poll
-    <code class="inline">get_job()</code> for status and progress — the classic <strong>submit / poll</strong>
-    async-job pattern.
+    Chấm điểm cả file CSV nhà cung cấp mà không chặn API: <code class="inline">start_job()</code> parse và
+    validate CSV, lưu một dòng job, khởi động một daemon thread, và trả về job ID ngay lập tức. Client poll
+    <code class="inline">get_job()</code> để lấy trạng thái và tiến độ — pattern job bất đồng bộ
+    <strong>submit / poll</strong> kinh điển.
   </p>
 
-  <h3>Key functions</h3>
+  <h3>Các hàm chính</h3>
   <div class="tbl-wrap"><table>
-    <tr><th>Member</th><th>What it does</th></tr>
+    <tr><th>Thành phần</th><th>Chức năng</th></tr>
     <tr><td><code>start_job(data_csv, chunk_size)</code></td>
-        <td>Parses CSV via <code>csv.DictReader</code>, rejects empty files (<code>ValueError</code>), creates the
-        job row (status pending → running), starts a daemon <code>threading.Thread</code> on
-        <code>_process_job</code>, returns a 16-hex job ID.</td></tr>
+        <td>Parse CSV bằng <code>csv.DictReader</code>, từ chối file rỗng (<code>ValueError</code>), tạo dòng
+        job (status pending → running), khởi động một daemon <code>threading.Thread</code> chạy
+        <code>_process_job</code>, trả về job ID 16 ký tự hex.</td></tr>
     <tr><td><code>_process_job(job_id, records, chunk_size)</code></td>
-        <td>Iterates in chunks of 10; each record is scored with <strong>one retry</strong> on failure; failures are
-        recorded as <code>{"supplier_id", "error"}</code> result rows rather than aborting the job. Progress
-        (processed/failed) is persisted after every chunk, so pollers see live progress. Terminal states:
-        <code>completed</code> (with JSON results) or <code>failed</code> (unexpected outer exception).</td></tr>
+        <td>Lặp theo từng chunk 10 bản ghi; mỗi bản ghi được chấm điểm với <strong>một lần retry</strong> khi
+        thất bại; các thất bại được ghi nhận thành dòng kết quả <code>{"supplier_id", "error"}</code> thay vì
+        hủy cả job. Tiến độ (processed/failed) được lưu sau mỗi chunk, nên bên poll thấy tiến độ trực tiếp.
+        Trạng thái kết thúc: <code>completed</code> (kèm kết quả JSON) hoặc <code>failed</code> (exception ngoài
+        không lường trước).</td></tr>
     <tr><td><code>_map_csv_row(row)</code> / <code>_predict_sync(data)</code></td>
-        <td>Type-coerces CSV strings with defaults (missing country → "XX" → 0.5 unknown-country risk), then runs the
-        same features → registry → predict/explain path as real-time inference — one model contract, two entry points.</td></tr>
+        <td>Ép kiểu các chuỗi CSV với giá trị mặc định (thiếu country → "XX" → rủi ro unknown-country 0.5), rồi
+        chạy đúng con đường features → registry → predict/explain như inference thời gian thực — một hợp đồng
+        model, hai điểm vào.</td></tr>
   </table></div>
 
   <div class="callout why">
-    <div class="title">Why chunked + per-record error isolation</div>
-    <p>A 10,000-row file with one malformed row should produce 9,999 predictions and 1 recorded error — not a dead
-    job. Chunking bounds the granularity of progress updates (one DB write per 10 records, not per record), and
-    per-record try/retry/except converts data-quality problems into inspectable results instead of crashes.</p>
+    <div class="title">Tại sao chia chunk + cô lập lỗi theo từng bản ghi</div>
+    <p>Một file 10.000 dòng với một dòng lỗi định dạng nên tạo ra 9.999 prediction và 1 lỗi được ghi lại — chứ
+    không phải một job chết. Chia chunk giới hạn độ hạt (granularity) của việc cập nhật tiến độ (một lần ghi DB
+    cho mỗi 10 bản ghi, không phải mỗi bản ghi), và try/retry/except theo từng bản ghi chuyển các vấn đề chất
+    lượng dữ liệu thành kết quả có thể soi được thay vì các cú crash.</p>
   </div>
 
   <div class="callout warn">
-    <div class="title">What can go wrong</div>
+    <div class="title">Những gì có thể sai</div>
     <ul>
-      <li><strong>Immediate identical retry:</strong> the retry re-runs the same deterministic computation, so a
-      parse error (e.g. non-numeric <code class="inline">defect_rate</code>) fails identically twice. Retries pay off
-      for transient faults (network, locks) — with backoff — not deterministic ones. Good self-critique material.</li>
-      <li><strong>Jobs die with the process:</strong> daemon threads are killed on shutdown; a restart leaves jobs
-      stuck in <code class="inline">running</code> forever with no recovery/reaper logic. Debugging tip: perpetual
-      "running" jobs after a redeploy are exactly this.</li>
-      <li><strong>Results as one JSON blob:</strong> the whole result list is serialized into a single
-      <code class="inline">results</code> TEXT column — memory-heavy for large jobs and unqueryable. The (unused)
-      <code class="inline">batch_job_items</code> table is the schema-ready fix.</li>
-      <li><strong>No concurrency limit:</strong> every submitted job gets its own thread; N large uploads = N threads
-      competing with request handling (and the GIL).</li>
+      <li><strong>Retry ngay lập tức, y hệt:</strong> lần retry chạy lại đúng phép tính deterministic đó, nên một
+      lỗi parse (ví dụ <code class="inline">defect_rate</code> không phải số) thất bại y hệt hai lần. Retry chỉ
+      đáng tiền với các lỗi thoáng qua (mạng, khóa DB) — kèm backoff — chứ không phải lỗi deterministic. Chất
+      liệu tự phê bình rất tốt.</li>
+      <li><strong>Job chết cùng process:</strong> daemon thread bị giết khi shutdown; một lần restart để lại các
+      job kẹt ở <code class="inline">running</code> mãi mãi mà không có logic phục hồi/reaper. Mẹo debug: các
+      job "running" vĩnh viễn sau một lần redeploy chính là hiện tượng này.</li>
+      <li><strong>Kết quả là một blob JSON duy nhất:</strong> toàn bộ danh sách kết quả được serialize vào một
+      cột TEXT <code class="inline">results</code> — nặng bộ nhớ với job lớn và không truy vấn được. Bảng
+      <code class="inline">batch_job_items</code> (chưa dùng) là bản sửa đã sẵn schema.</li>
+      <li><strong>Không giới hạn concurrency:</strong> mỗi job submit vào đều có thread riêng; N lần upload lớn =
+      N thread cạnh tranh với việc xử lý request (và với GIL).</li>
     </ul>
   </div>
 
   <div class="callout trade">
-    <div class="title">Production tradeoffs</div>
+    <div class="title">Đánh đổi khi lên production</div>
     <ul>
-      <li>Replace threads with a real work queue — Celery/RQ/Arq or a cloud-native equivalent (SQS + workers,
-      Cloud Tasks). You gain persistence across restarts, retries with backoff, concurrency control, and dead-letter
-      queues.</li>
-      <li>Large batches stream results to object storage (S3/Parquet) rather than a DB column; the job row stores a
-      pointer.</li>
-      <li>Add idempotency keys so a client-side retry of <code class="inline">start_job</code> doesn't double-score.</li>
+      <li>Thay thread bằng một work queue thật — Celery/RQ/Arq hoặc tương đương cloud-native (SQS + workers,
+      Cloud Tasks). Bạn được thêm: bền vững qua restart, retry với backoff, kiểm soát concurrency, và
+      dead-letter queue.</li>
+      <li>Batch lớn stream kết quả ra object storage (S3/Parquet) thay vì một cột DB; dòng job chỉ lưu một con
+      trỏ.</li>
+      <li>Thêm idempotency key để một lần retry phía client của <code class="inline">start_job</code> không chấm
+      điểm hai lần.</li>
     </ul>
   </div>
 
   <div class="callout talk">
-    <div class="title">Interview talking points</div>
+    <div class="title">Điểm nói chuyện phỏng vấn</div>
     <ul>
-      <li>"Submit/poll with persisted progress is the right API shape; the in-process thread is the demo-scale
-      executor. Swapping the executor for Celery changes zero API surface — that boundary was deliberate."</li>
-      <li>"Batch and real-time share one prediction path (features → registry → model), so a model promotion instantly
-      applies to both — no training/serving-style skew between the two entry points."</li>
-      <li>Be ready for: "What happens if the server restarts mid-job?" — answer honestly (stuck in running) and
-      describe the reaper/queue fix.</li>
+      <li>"Submit/poll với tiến độ được lưu bền là đúng hình dạng API; thread in-process là executor ở quy mô
+      demo. Hoán đổi executor sang Celery không thay đổi một chút bề mặt API nào — ranh giới đó là có chủ
+      đích."</li>
+      <li>"Batch và thời gian thực dùng chung một đường prediction (features → registry → model), nên promote
+      model là áp dụng ngay cho cả hai — không có skew kiểu training/serving giữa hai điểm vào."</li>
+      <li>Hãy sẵn sàng cho câu hỏi: "Điều gì xảy ra nếu server restart giữa chừng job?" — trả lời trung thực
+      (kẹt ở running) và mô tả bản sửa reaper/queue.</li>
     </ul>
   </div>
 </section>
@@ -1185,73 +1233,78 @@ explanation = model_version.model_instance.explain(features)
 <!-- ============================================================ -->
 <section id="monitoring-service">
   <span class="tag svc">Service · Ops</span>
-  <h2><code>services/monitoring_service.py</code> — Platform metrics aggregator</h2>
+  <h2><code>services/monitoring_service.py</code> — Bộ tổng hợp metrics của nền tảng</h2>
 
-  <h3>Purpose</h3>
+  <h3>Mục đích</h3>
   <p>
-    Computes the operational dashboard from <code class="inline">request_history</code>: latency percentiles
-    (p50/p95/p99 via NumPy), requests-per-minute, error rate, cache-hit rate, per-endpoint breakdowns, an estimated
-    cost figure (per-request unit costs from config), and embeds the drift report from
-    <code class="inline">DriftService</code>. One endpoint, one JSON, the whole platform's health.
+    Tính toán dashboard vận hành từ <code class="inline">request_history</code>: các percentile latency
+    (p50/p95/p99 qua NumPy), requests-per-minute, tỷ lệ lỗi, tỷ lệ cache-hit, phân tích theo từng endpoint, một
+    con số chi phí ước tính (đơn giá mỗi request lấy từ config), và nhúng báo cáo drift từ
+    <code class="inline">DriftService</code>. Một endpoint, một JSON, toàn bộ sức khỏe của nền tảng.
   </p>
 
-  <h3>Key functions</h3>
+  <h3>Các hàm chính</h3>
   <div class="tbl-wrap"><table>
-    <tr><th>Member</th><th>What it does</th></tr>
+    <tr><th>Thành phần</th><th>Chức năng</th></tr>
     <tr><td><code>get_metrics()</code></td>
-        <td>Loads up to 10k history rows; computes <code>np.percentile</code> p50/p95/p99 over latencies;
-        counts rows with timestamps in the last 60 s (defensive ISO parsing, "Z" handling) for RPM;
-        derives error and cache-hit rates; estimates cost as
-        <code>inference_count · $0.002 + rag_count · $0.005</code>; groups rows by endpoint for per-endpoint
-        count / avg latency / error rate; attaches <code>drift_service.get_drift_score()</code>.</td></tr>
+        <td>Nạp tối đa 10k dòng history; tính <code>np.percentile</code> p50/p95/p99 trên latency;
+        đếm các dòng có timestamp trong 60 s gần nhất (parse ISO phòng thủ, xử lý hậu tố "Z") để ra RPM;
+        suy ra tỷ lệ lỗi và cache-hit; ước tính chi phí theo công thức
+        <code>inference_count · $0.002 + rag_count · $0.005</code>; nhóm các dòng theo endpoint để có
+        count / latency trung bình / tỷ lệ lỗi theo từng endpoint; đính kèm
+        <code>drift_service.get_drift_score()</code>.</td></tr>
     <tr><td><code>_empty_metrics()</code></td>
-        <td>Full-shape zeroed payload when there is no traffic — the dashboard never has to null-check.</td></tr>
+        <td>Payload đầy đủ cấu trúc, toàn số 0 khi không có lưu lượng — dashboard không bao giờ phải kiểm tra
+        null.</td></tr>
   </table></div>
 
   <div class="callout why">
-    <div class="title">Why percentiles and cost, not averages</div>
-    <p>Averages hide tail pain: one slow dependency turns p99 red long before the mean moves, and users live at the
-    tail. The cost estimate matters because inference cost is a first-class production metric for AI platforms —
-    caching isn't just a latency optimization, it's a budget line, and this endpoint makes that visible
-    (hit rate × unit cost = money saved).</p>
+    <div class="title">Tại sao percentile và chi phí, không phải trung bình</div>
+    <p>Trung bình che giấu nỗi đau ở phần đuôi: một dependency chậm làm p99 đỏ rực từ lâu trước khi giá trị trung
+    bình nhúc nhích, và người dùng sống ở phần đuôi đó. Con số chi phí quan trọng vì chi phí inference là một
+    metric production hạng nhất đối với các nền tảng AI — caching không chỉ là tối ưu latency, nó là một dòng
+    trong ngân sách, và endpoint này làm điều đó nhìn thấy được (hit rate × đơn giá = số tiền tiết kiệm).</p>
   </div>
 
   <div class="callout warn">
-    <div class="title">What can go wrong</div>
+    <div class="title">Những gì có thể sai</div>
     <ul>
-      <li><strong>The status-string bug:</strong> errors are counted as <code class="inline">status != "success"</code>,
-      but services log <code class="inline">status="ok"</code> — so error_rate reads ~1.0 under healthy traffic.
-      A shared status enum (or counting <code class="inline">status not in ("ok","success")</code>) fixes it.
-      Excellent "find the cross-service constant drift" debugging story.</li>
-      <li><strong>Hardcoded <code class="inline">rag_citation_rate: 0.85</code></strong> — a placeholder metric.
-      Never ship a constant pretending to be a measurement; compute it from history payloads or omit it.</li>
-      <li><strong>Percentiles need volume:</strong> p99 over 20 requests is just the max; treat small-sample
-      percentiles as noise.</li>
-      <li><strong>Full-table rescan per call:</strong> every dashboard refresh re-reads and re-aggregates 10k rows.
-      Cheap now, quadratic pain later.</li>
+      <li><strong>Bug chuỗi status:</strong> lỗi được đếm theo <code class="inline">status != "success"</code>,
+      nhưng các service ghi <code class="inline">status="ok"</code> — nên error_rate đọc ra ~1.0 dưới lưu lượng
+      hoàn toàn khỏe mạnh. Một enum status dùng chung (hoặc đếm
+      <code class="inline">status not in ("ok","success")</code>) sẽ sửa được. Một câu chuyện debug "tìm sự trôi
+      dạt hằng số giữa các service" xuất sắc.</li>
+      <li><strong>Hardcode <code class="inline">rag_citation_rate: 0.85</code></strong> — một metric giữ chỗ
+      (placeholder). Đừng bao giờ ship một hằng số giả vờ là một phép đo; hãy tính nó từ payload trong history
+      hoặc bỏ hẳn.</li>
+      <li><strong>Percentile cần khối lượng:</strong> p99 trên 20 request chỉ là giá trị max; hãy coi percentile
+      trên mẫu nhỏ là nhiễu.</li>
+      <li><strong>Quét lại cả bảng mỗi lần gọi:</strong> mỗi lần refresh dashboard là đọc lại và tổng hợp lại 10k
+      dòng. Rẻ bây giờ, đau đớn bậc hai (quadratic) về sau.</li>
     </ul>
   </div>
 
   <div class="callout trade">
-    <div class="title">Production tradeoffs</div>
+    <div class="title">Đánh đổi khi lên production</div>
     <ul>
-      <li>Real systems emit metrics at write time — Prometheus histograms per endpoint, Grafana dashboards,
-      alerting rules on SLO burn rates — instead of recomputing from an audit table on read.</li>
-      <li>RPM from timestamps becomes a proper rate over a rolling window; cost estimation joins actual token/compute
-      billing rather than flat unit prices.</li>
-      <li>Keep this JSON endpoint anyway: a single self-describing health document is gold for demos, smoke tests,
-      and quick triage.</li>
+      <li>Hệ thống thật phát metrics ngay lúc ghi — histogram Prometheus theo từng endpoint, dashboard Grafana,
+      quy tắc cảnh báo trên tốc độ đốt SLO (SLO burn rate) — thay vì tính lại từ một bảng audit lúc đọc.</li>
+      <li>RPM từ timestamp trở thành một rate đúng nghĩa trên cửa sổ trượt; ước tính chi phí join với hóa đơn
+      token/compute thực tế thay vì đơn giá phẳng.</li>
+      <li>Dù vậy hãy giữ endpoint JSON này: một tài liệu sức khỏe tự mô tả duy nhất là vàng cho demo, smoke test,
+      và triage nhanh.</li>
     </ul>
   </div>
 
   <div class="callout talk">
-    <div class="title">Interview talking points</div>
+    <div class="title">Điểm nói chuyện phỏng vấn</div>
     <ul>
-      <li>"The four golden signals adapted to ML serving: latency percentiles, traffic, errors, plus the two ML-specific
-      ones — drift and cost. Cache hit rate ties directly to cost per request."</li>
-      <li>"Compute-on-read from an audit log is the simplest correct thing at this scale; I'd move to
-      emit-on-write (Prometheus) the moment traffic makes rescans expensive. Knowing when to make that switch is
-      the senior judgment call."</li>
+      <li>"Bốn tín hiệu vàng (golden signals) được điều chỉnh cho ML serving: percentile latency, traffic, lỗi,
+      cộng thêm hai tín hiệu đặc thù ML — drift và chi phí. Tỷ lệ cache hit gắn trực tiếp với chi phí mỗi
+      request."</li>
+      <li>"Tính-lúc-đọc từ một audit log là điều đơn giản nhất mà vẫn đúng ở quy mô này; tôi sẽ chuyển sang
+      phát-lúc-ghi (Prometheus) ngay khi lưu lượng làm việc quét lại trở nên đắt đỏ. Biết khi nào thực hiện cú
+      chuyển đó chính là phán đoán của một senior."</li>
     </ul>
   </div>
 </section>
@@ -1259,78 +1312,81 @@ explanation = model_version.model_instance.explain(features)
 <!-- ============================================================ -->
 <section id="drift-service">
   <span class="tag svc">Service · Ops</span>
-  <h2><code>services/drift_service.py</code> — Usage-drift detection via JSD</h2>
+  <h2><code>services/drift_service.py</code> — Phát hiện usage-drift bằng JSD</h2>
 
-  <h3>Purpose</h3>
+  <h3>Mục đích</h3>
   <p>
-    Detects when the <em>mix of incoming traffic</em> shifts away from expectations. Each historical request is
-    classified into one of five intents; the live distribution is compared to a frozen baseline
-    (40% risk_assessment / 25% compliance / 15% pricing / 12% quality / 8% general) with Jensen–Shannon divergence,
-    and thresholded into <code class="inline">ok / warning / alert</code>.
+    Phát hiện khi <em>cơ cấu lưu lượng đến</em> dịch chuyển khỏi kỳ vọng. Mỗi request lịch sử được phân loại vào
+    một trong năm intent; phân phối thực tế được so sánh với một baseline đóng băng
+    (40% risk_assessment / 25% compliance / 15% pricing / 12% quality / 8% general) bằng Jensen–Shannon
+    divergence, rồi phân ngưỡng thành <code class="inline">ok / warning / alert</code>.
   </p>
 
-  <h3>Key functions</h3>
+  <h3>Các hàm chính</h3>
   <div class="tbl-wrap"><table>
-    <tr><th>Member</th><th>What it does</th></tr>
+    <tr><th>Thành phần</th><th>Chức năng</th></tr>
     <tr><td><code>_classify_intent(text)</code></td>
-        <td>Rule cascade over endpoint + query text: inference/"risk" → risk_assessment; RAG queries matched against
-        keyword sets for compliance / pricing / quality; otherwise general. Cheap, deterministic, explainable.</td></tr>
+        <td>Chuỗi quy tắc (rule cascade) trên endpoint + nội dung câu hỏi: inference/"risk" → risk_assessment;
+        các câu hỏi RAG được so khớp với các tập từ khóa cho compliance / pricing / quality; còn lại là general.
+        Rẻ, deterministic, giải thích được.</td></tr>
     <tr><td><code>_kld(p, q, eps)</code> / <code>_compute_jsd(p, q)</code></td>
-        <td>KL divergence with epsilon smoothing (avoids log(0)); JSD unions both key sets, zero-fills, builds the
-        midpoint mixture M = (P+Q)/2, and returns ½KL(P‖M) + ½KL(Q‖M) — symmetric, bounded by ln 2.</td></tr>
+        <td>KL divergence với epsilon smoothing (tránh log(0)); JSD hợp nhất cả hai tập khóa, điền số 0, dựng
+        hỗn hợp trung điểm M = (P+Q)/2, và trả về ½KL(P‖M) + ½KL(Q‖M) — đối xứng, bị chặn bởi ln 2.</td></tr>
     <tr><td><code>get_drift_score()</code></td>
-        <td>Classifies the last 1000 requests, normalizes to a distribution, computes JSD vs baseline, maps to
-        status via <code>drift_warning=0.20</code> / <code>drift_alert=0.35</code>, and returns both distributions
-        plus sample size — the report explains itself.</td></tr>
+        <td>Phân loại 1000 request gần nhất, chuẩn hóa thành phân phối, tính JSD so với baseline, ánh xạ sang
+        trạng thái qua <code>drift_warning=0.20</code> / <code>drift_alert=0.35</code>, và trả về cả hai phân
+        phối kèm kích thước mẫu — bản báo cáo tự giải thích chính nó.</td></tr>
   </table></div>
 
   <div class="callout why">
-    <div class="title">Why JSD, and why intent-level drift</div>
-    <p>KL divergence is asymmetric (KL(P‖Q) ≠ KL(Q‖P)) and unbounded — a category present in baseline but absent in
-    live traffic sends it to infinity, making thresholds meaningless. JSD fixes both: symmetric, finite, bounded, so
-    "0.20 = warning" is a stable contract. Intent-level drift is the cheapest early-warning layer: it needs no labels
-    and no feature access, just request logs — usage shifting toward compliance queries tells you to re-check RAG
-    coverage <em>before</em> answer quality visibly degrades.</p>
+    <div class="title">Tại sao JSD, và tại sao drift ở cấp intent</div>
+    <p>KL divergence bất đối xứng (KL(P‖Q) ≠ KL(Q‖P)) và không bị chặn — một danh mục có mặt trong baseline nhưng
+    vắng trong lưu lượng thực đẩy nó lên vô cực, khiến các ngưỡng trở nên vô nghĩa. JSD sửa cả hai: đối xứng, hữu
+    hạn, bị chặn, nên "0.20 = warning" là một hợp đồng ổn định. Drift ở cấp intent là lớp cảnh báo sớm rẻ nhất: nó
+    không cần nhãn (label), không cần truy cập feature, chỉ cần log request — mức sử dụng dịch chuyển về các câu
+    hỏi compliance mách bạn phải kiểm tra lại độ phủ RAG <em>trước khi</em> chất lượng câu trả lời suy giảm thấy
+    rõ.</p>
   </div>
 
   <div class="callout warn">
-    <div class="title">What can go wrong</div>
+    <div class="title">Những gì có thể sai</div>
     <ul>
-      <li><strong>Classifier–baseline coupling:</strong> the score measures drift of <em>classified</em> intents.
-      Editing keyword lists silently shifts the measured distribution and can fake (or mask) drift. Version the
-      classifier with the baseline.</li>
-      <li><strong>Frozen hardcoded baseline:</strong> if the business legitimately changes (compliance season!),
-      drift alerts forever until someone re-baselines. Production wants baseline as versioned data with a rebaseline
-      workflow, not a class constant.</li>
-      <li><strong>Small-sample noise:</strong> JSD over 10 requests swings wildly; gate the status on
-      <code class="inline">sample_size</code> before alerting.</li>
-      <li><strong>Substring pitfalls:</strong> <code class="inline">"risk" in text</code> matches any RAG query
-      containing the word "risk", pulling it into risk_assessment. Keyword classifiers need word-boundary matching.</li>
+      <li><strong>Ghép cứng classifier–baseline:</strong> điểm số đo drift của các intent <em>đã được phân
+      loại</em>. Sửa danh sách từ khóa sẽ âm thầm dịch chuyển phân phối được đo và có thể tạo drift giả (hoặc che
+      drift thật). Hãy version hóa classifier cùng với baseline.</li>
+      <li><strong>Baseline hardcode đóng băng:</strong> nếu business thay đổi một cách chính đáng (mùa
+      compliance!), cảnh báo drift sẽ kêu mãi cho đến khi ai đó re-baseline. Production muốn baseline là dữ liệu
+      có version với một quy trình rebaseline, không phải một hằng số trong class.</li>
+      <li><strong>Nhiễu mẫu nhỏ:</strong> JSD trên 10 request dao động dữ dội; hãy gác trạng thái theo
+      <code class="inline">sample_size</code> trước khi cảnh báo.</li>
+      <li><strong>Bẫy substring:</strong> <code class="inline">"risk" in text</code> khớp với bất kỳ câu hỏi RAG
+      nào chứa chữ "risk", kéo nó vào risk_assessment. Các classifier từ khóa cần so khớp theo ranh giới từ
+      (word-boundary).</li>
     </ul>
   </div>
 
   <div class="callout trade">
-    <div class="title">Production tradeoffs</div>
+    <div class="title">Đánh đổi khi lên production</div>
     <ul>
-      <li>Full drift coverage is layered: usage/intent drift (this), <em>feature drift</em> (PSI/KS per input feature),
-      <em>prediction drift</em> (score distribution shift), and — with labels — <em>performance drift</em>.
-      Tools: Evidently, whylogs/WhyLabs, or warehouse SQL jobs.</li>
-      <li>Intent classification upgrades from keywords to embedding-cluster assignment; drift then compares cluster
-      occupancy.</li>
-      <li>Run drift as a scheduled job with windowed comparisons (this week vs training window), not on-demand over
-      "last 1000 rows".</li>
+      <li>Độ phủ drift đầy đủ có nhiều lớp: usage/intent drift (cái này), <em>feature drift</em> (PSI/KS trên
+      từng feature đầu vào), <em>prediction drift</em> (dịch chuyển phân phối điểm số), và — khi có nhãn —
+      <em>performance drift</em>. Công cụ: Evidently, whylogs/WhyLabs, hoặc các job SQL trên warehouse.</li>
+      <li>Phân loại intent nâng cấp từ từ khóa lên gán theo cụm embedding (embedding-cluster assignment); drift
+      khi đó so sánh mức chiếm chỗ của các cụm.</li>
+      <li>Chạy drift như một job định kỳ với các cửa sổ so sánh (tuần này vs cửa sổ training), thay vì
+      theo yêu cầu trên "1000 dòng gần nhất".</li>
     </ul>
   </div>
 
   <div class="callout talk">
-    <div class="title">Interview talking points</div>
+    <div class="title">Điểm nói chuyện phỏng vấn</div>
     <ul>
-      <li>"I chose JSD over KL deliberately: symmetric and bounded means thresholds are stable even when a category
-      drops to zero — with KL that's a division-by-epsilon explosion."</li>
-      <li>"The report returns both distributions, not just a number — a drift score you can't explain is an alert
-      nobody trusts. Ours shows exactly which intent grew."</li>
-      <li>"Drift detection is a hierarchy of cost vs signal: usage drift is free (logs only), performance drift is
-      gold but needs labels. You build the cheap layers first."</li>
+      <li>"Tôi chọn JSD thay vì KL một cách có chủ đích: đối xứng và bị chặn nghĩa là các ngưỡng vẫn ổn định kể
+      cả khi một danh mục rơi về 0 — với KL thì đó là một cú nổ chia-cho-epsilon."</li>
+      <li>"Báo cáo trả về cả hai phân phối, không chỉ một con số — một điểm drift không giải thích được là một
+      cảnh báo không ai tin. Của chúng tôi chỉ ra chính xác intent nào đã phình lên."</li>
+      <li>"Phát hiện drift là một hệ phân cấp giữa chi phí và tín hiệu: usage drift miễn phí (chỉ cần log),
+      performance drift là vàng nhưng cần nhãn. Bạn xây các lớp rẻ trước."</li>
     </ul>
   </div>
 </section>
@@ -1338,78 +1394,84 @@ explanation = model_version.model_instance.explain(features)
 <!-- ============================================================ -->
 <section id="evaluation-service">
   <span class="tag svc">Service · Ops</span>
-  <h2><code>services/evaluation_service.py</code> — Golden-set RAG evaluation</h2>
+  <h2><code>services/evaluation_service.py</code> — Đánh giá RAG bằng golden set</h2>
 
-  <h3>Purpose</h3>
+  <h3>Mục đích</h3>
   <p>
-    Regression testing for the RAG system. It replays a curated set of <code class="inline">GOLDEN_QUESTIONS</code>
-    (each with expected doc IDs and expected answer keywords) through the <em>live</em> pipeline and scores four
-    metrics per question — recall@k, precision@k, faithfulness, citation accuracy — then averages them and raises a
-    <code class="inline">regression_detected</code> flag when quality drops below thresholds.
+    Regression testing cho hệ thống RAG. Nó phát lại một bộ <code class="inline">GOLDEN_QUESTIONS</code> được
+    tuyển chọn (mỗi câu có các doc ID kỳ vọng và các từ khóa câu trả lời kỳ vọng) qua pipeline <em>đang chạy
+    thật</em> và chấm bốn metric cho mỗi câu hỏi — recall@k, precision@k, faithfulness, citation accuracy — rồi
+    lấy trung bình và giương cờ <code class="inline">regression_detected</code> khi chất lượng tụt xuống dưới
+    ngưỡng.
   </p>
 
-  <h3>Metrics computed</h3>
+  <h3>Các metric được tính</h3>
   <div class="tbl-wrap"><table>
-    <tr><th>Metric</th><th>Formula</th><th>Question it answers</th></tr>
+    <tr><th>Metric</th><th>Công thức</th><th>Câu hỏi nó trả lời</th></tr>
     <tr><td><code>recall_at_k</code></td><td>|expected ∩ retrieved| / |expected|</td>
-        <td>Did retrieval find the documents that contain the answer?</td></tr>
+        <td>Retrieval có tìm ra những tài liệu chứa câu trả lời không?</td></tr>
     <tr><td><code>precision_at_k</code></td><td>|expected ∩ retrieved| / |retrieved|</td>
-        <td>How much of what we retrieved was actually relevant?</td></tr>
-    <tr><td><code>faithfulness</code></td><td>fraction of expected keywords present in the answer</td>
-        <td>Does the generated answer contain the right content? (keyword proxy)</td></tr>
+        <td>Trong những gì đã truy xuất, bao nhiêu phần thực sự liên quan?</td></tr>
+    <tr><td><code>faithfulness</code></td><td>tỷ lệ từ khóa kỳ vọng có mặt trong câu trả lời</td>
+        <td>Câu trả lời được sinh ra có chứa đúng nội dung không? (proxy bằng từ khóa)</td></tr>
     <tr><td><code>citation_accuracy</code></td><td>|cited ∩ expected| / |cited|</td>
-        <td>Do the citations point at the right sources?</td></tr>
+        <td>Các citation có trỏ vào đúng nguồn không?</td></tr>
   </table></div>
   <p>
-    Questions with recall &lt; 0.5 are collected into <code class="inline">failed_cases</code> with expected-vs-retrieved
-    doc IDs — the debugging payload, not just a score. Regression fires when avg recall &lt; 0.6 <em>or</em> avg
-    faithfulness &lt; 0.5.
+    Các câu hỏi có recall &lt; 0.5 được gom vào <code class="inline">failed_cases</code> kèm danh sách doc ID
+    kỳ-vọng-vs-đã-truy-xuất — đó là payload để debug, không chỉ là một điểm số. Cờ regression bật khi recall
+    trung bình &lt; 0.6 <em>hoặc</em> faithfulness trung bình &lt; 0.5.
   </p>
 
   <div class="callout why">
-    <div class="title">Why golden-set evaluation</div>
-    <p>RAG systems degrade silently: re-chunk the corpus, swap the embedding model, tweak rerank weights — no test
-    fails, users just get worse answers. A golden set converts "the RAG feels worse" into a number that can gate a
-    deploy, exactly like a unit-test suite gates a merge. Because it runs through the real service stack (retrieval,
-    permissions, rerank, generation), it catches integration regressions, not just component ones.</p>
+    <div class="title">Tại sao đánh giá bằng golden set</div>
+    <p>Hệ thống RAG suy giảm một cách âm thầm: re-chunk kho tài liệu, đổi embedding model, chỉnh trọng số rerank —
+    không có test nào fail, người dùng chỉ nhận câu trả lời tệ hơn. Một golden set biến "cảm giác RAG tệ đi"
+    thành một con số có thể gác cổng cho một lần deploy, đúng như cách một bộ unit-test gác cổng một lần merge.
+    Vì nó chạy qua stack service thật (retrieval, phân quyền, rerank, generation), nó bắt được các regression ở
+    mức tích hợp, không chỉ ở mức thành phần.</p>
   </div>
 
   <div class="callout warn">
-    <div class="title">What can go wrong</div>
+    <div class="title">Những gì có thể sai</div>
     <ul>
-      <li><strong>Cache contamination:</strong> evaluation queries hit the same RAG cache as production traffic —
-      a second evaluation run may score cached answers, and eval queries pollute the cache. Evaluations should bypass
-      or namespace the cache.</li>
-      <li><strong>Keyword faithfulness is a weak proxy:</strong> an answer can contain every keyword and still be
-      wrong (or contradictory). It's honest for the extractive mock generator; with a real LLM you need
-      LLM-as-judge or NLI-based groundedness scoring.</li>
-      <li><strong>Golden-set rot:</strong> expected_doc_ids break when documents are re-chunked or re-IDed. The golden
-      set is a versioned artifact that must migrate with the corpus.</li>
-      <li><strong>Role-dependence:</strong> results are computed as role="analyst"; a permission change can move
-      scores without any retrieval change. That's a feature (it catches permission regressions) but a confusing one
-      if you don't know it.</li>
+      <li><strong>Nhiễm bẩn cache:</strong> các câu hỏi evaluation đánh vào cùng cache RAG với lưu lượng
+      production — lần chạy evaluation thứ hai có thể chấm điểm các câu trả lời đã cache, và các câu hỏi eval làm
+      "ô nhiễm" cache. Evaluation nên bypass hoặc dùng namespace cache riêng.</li>
+      <li><strong>Faithfulness bằng từ khóa là một proxy yếu:</strong> một câu trả lời có thể chứa đủ mọi từ khóa
+      mà vẫn sai (hoặc tự mâu thuẫn). Nó trung thực đối với bộ sinh trích xuất mock; với một LLM thật bạn cần
+      LLM-as-judge hoặc chấm groundedness dựa trên NLI.</li>
+      <li><strong>Golden set mục ruỗng (rot):</strong> expected_doc_ids vỡ khi tài liệu được re-chunk hoặc đổi
+      ID. Golden set là một artifact có version và phải migrate cùng với kho tài liệu.</li>
+      <li><strong>Phụ thuộc role:</strong> kết quả được tính với role="analyst"; một thay đổi về quyền có thể làm
+      điểm số dịch chuyển mà retrieval không hề thay đổi. Đó là một tính năng (nó bắt được regression về quyền)
+      nhưng cũng gây bối rối nếu bạn không biết trước.</li>
     </ul>
   </div>
 
   <div class="callout trade">
-    <div class="title">Production tradeoffs</div>
+    <div class="title">Đánh đổi khi lên production</div>
     <ul>
-      <li>Wire into CI/CD: run on every PR touching retrieval/prompt/index code, block merge on regression — the ML
-      analog of a test suite. Frameworks: Ragas, TruLens, DeepEval, or this exact hand-rolled shape.</li>
-      <li>Store evaluation runs over time (per model/index/prompt version) to draw quality trendlines, not just
-      point-in-time pass/fail.</li>
-      <li>Grow the set from production: mine low-confidence or thumbs-down queries into new golden questions.</li>
+      <li>Nối vào CI/CD: chạy trên mỗi PR đụng đến code retrieval/prompt/index, chặn merge khi có regression —
+      bản tương tự ML của một test suite. Framework: Ragas, TruLens, DeepEval, hoặc chính hình dạng tự viết tay
+      này.</li>
+      <li>Lưu các lần chạy evaluation theo thời gian (theo từng version model/index/prompt) để vẽ đường xu hướng
+      chất lượng, thay vì chỉ pass/fail tại một thời điểm.</li>
+      <li>Nuôi lớn bộ câu hỏi từ production: khai thác các truy vấn có độ tự tin thấp hoặc bị người dùng chê
+      (thumbs-down) thành các câu hỏi golden mới.</li>
     </ul>
   </div>
 
   <div class="callout talk">
-    <div class="title">Interview talking points</div>
+    <div class="title">Điểm nói chuyện phỏng vấn</div>
     <ul>
-      <li>"Retrieval and generation need separate metrics — recall@k tells you if search failed, faithfulness tells
-      you if generation failed. One blended score can't tell you which stage to fix."</li>
-      <li>"failed_cases with expected-vs-retrieved doc IDs is the difference between an alarm and a diagnosis."</li>
-      <li>"The regression flag exists to gate deploys — evaluation that doesn't block anything is a dashboard, not a
-      control."</li>
+      <li>"Retrieval và generation cần các metric tách biệt — recall@k cho bạn biết search có fail không,
+      faithfulness cho bạn biết generation có fail không. Một điểm số trộn lẫn không thể nói bạn phải sửa giai
+      đoạn nào."</li>
+      <li>"failed_cases với doc ID kỳ-vọng-vs-đã-truy-xuất là sự khác biệt giữa một hồi chuông báo động và một
+      bản chẩn đoán."</li>
+      <li>"Cờ regression tồn tại để gác cổng deploy — một evaluation không chặn được gì cả thì là một dashboard,
+      không phải một cơ chế kiểm soát."</li>
     </ul>
   </div>
 </section>
@@ -1419,81 +1481,85 @@ explanation = model_version.model_instance.explain(features)
 <!-- ============================================================ -->
 <section id="supplier-risk-model">
   <span class="tag ml">ML</span>
-  <h2><code>ml/supplier_risk_model.py</code> — Risk models behind one contract</h2>
+  <h2><code>ml/supplier_risk_model.py</code> — Các model rủi ro sau một hợp đồng chung</h2>
 
-  <h3>Purpose</h3>
+  <h3>Mục đích</h3>
   <p>
-    Defines the model contract and two implementations. <code class="inline">BaseRiskModel</code> (ABC) requires
-    <code class="inline">predict(features) → {risk_score, risk_level}</code> and
-    <code class="inline">explain(features) → list[factor contributions]</code> — note that <em>explainability is part
-    of the interface</em>, not an afterthought.
+    Định nghĩa hợp đồng model và hai implementation. <code class="inline">BaseRiskModel</code> (ABC) yêu cầu
+    <code class="inline">predict(features) → {risk_score, risk_level}</code> và
+    <code class="inline">explain(features) → list[đóng góp của từng yếu tố]</code> — lưu ý rằng <em>khả năng giải
+    thích (explainability) là một phần của interface</em>, không phải một ý nghĩ đến sau.
   </p>
 
-  <h3>Key pieces</h3>
+  <h3>Các thành phần chính</h3>
   <div class="tbl-wrap"><table>
-    <tr><th>Member</th><th>What it does</th></tr>
+    <tr><th>Thành phần</th><th>Chức năng</th></tr>
     <tr><td><code>RuleBasedModel.predict()</code></td>
-        <td>Weighted sum over five normalized features — defect_rate 0.30, late_delivery 0.25, country_risk 0.20,
-        lead_time 0.15, order_value 0.10 — clamped to [0,1], then bucketed by thresholds
-        (≥0.85 critical, ≥0.70 high, ≥0.40 medium, else low).</td></tr>
+        <td>Tổng có trọng số trên năm feature đã chuẩn hóa — defect_rate 0.30, late_delivery 0.25,
+        country_risk 0.20, lead_time 0.15, order_value 0.10 — kẹp (clamp) vào [0,1], rồi chia bucket theo ngưỡng
+        (≥0.85 critical, ≥0.70 high, ≥0.40 medium, còn lại low).</td></tr>
     <tr><td><code>RuleBasedModel.explain()</code></td>
-        <td>Exact additive attribution: each factor's impact is literally <code>value × weight</code>, tagged with a
-        direction, sorted by impact. Because the model is linear, the explanation is provably faithful — it sums to
-        the score.</td></tr>
+        <td>Quy kết cộng tính chính xác: tác động của mỗi yếu tố đúng bằng <code>value × weight</code>, gắn nhãn
+        chiều hướng, sort theo tác động. Vì model tuyến tính, lời giải thích trung thực một cách chứng minh được
+        — nó cộng lại đúng bằng điểm số.</td></tr>
     <tr><td><code>TrainedModel</code></td>
-        <td>Loads a pickled sklearn classifier if the artifact path exists; otherwise
-        <code>is_using_fallback=True</code> and all calls delegate to an internal <code>RuleBasedModel</code>.
-        Predicts via <code>predict_proba(...).max()</code>; explains via <code>feature_importances_</code>. Features
-        are ordered by <em>sorted key names</em> (excluding supplier_id) to build the vector.</td></tr>
+        <td>Load một classifier sklearn đã pickle nếu đường dẫn artifact tồn tại; nếu không thì
+        <code>is_using_fallback=True</code> và mọi lời gọi được ủy quyền cho một <code>RuleBasedModel</code> nội
+        bộ. Predict qua <code>predict_proba(...).max()</code>; explain qua <code>feature_importances_</code>.
+        Features được sắp theo <em>tên khóa đã sort</em> (loại trừ supplier_id) để dựng vector.</td></tr>
   </table></div>
 
   <div class="callout why">
-    <div class="title">Why start rule-based</div>
-    <p>Day one, there is no labeled training data. A weighted scorer encodes domain knowledge, ships immediately,
-    is 100% explainable, and — crucially — establishes the serving contract that a trained model must later satisfy.
-    It then becomes the permanent safety net: the trained model can fail to load, the rule-based one cannot.</p>
+    <div class="title">Tại sao bắt đầu bằng rule-based</div>
+    <p>Ngày đầu tiên, không có dữ liệu training có nhãn. Một bộ chấm điểm có trọng số mã hóa tri thức miền
+    (domain knowledge), ship được ngay lập tức, giải thích được 100%, và — quan trọng nhất — thiết lập hợp đồng
+    serving mà một model đã train về sau phải thỏa mãn. Sau đó nó trở thành lưới an toàn vĩnh viễn: model đã train
+    có thể load thất bại, model rule-based thì không thể.</p>
   </div>
 
   <div class="callout warn">
-    <div class="title">What can go wrong</div>
+    <div class="title">Những gì có thể sai</div>
     <ul>
-      <li><strong>Silent fallback:</strong> a missing/renamed artifact path quietly serves rule-based scores while
-      everyone believes the trained model is live. <code class="inline">is_using_fallback</code> exists but nothing
-      logs or exposes it — surface it in /health and metrics.</li>
-      <li><strong>Feature-order skew:</strong> sorted-key ordering must match training exactly; adding one feature to
-      <code class="inline">build_features</code> shifts every vector position and silently corrupts trained-model
-      predictions. Production stores an explicit feature list with the artifact.</li>
-      <li><strong><code class="inline">predict_proba(...).max()</code> is not a risk score:</strong> it's the
-      confidence of the <em>most likely class</em> — for a confident "low-risk" prediction it returns a high number
-      that then thresholds as "critical". It should be the probability of the positive/high-risk class.</li>
-      <li><strong>Pickle is unsafe:</strong> loading a pickle executes arbitrary code (the <code class="inline"># noqa: S301</code>
-      acknowledges it). Production wants signed artifacts, ONNX, or joblib from a trusted registry only.</li>
-      <li><strong>feature_importances_ are global, not per-prediction</strong> — every request gets the same
-      "explanation". Honest per-prediction attribution needs SHAP/TreeExplainer.</li>
+      <li><strong>Fallback âm thầm:</strong> một đường dẫn artifact bị thiếu/đổi tên sẽ lặng lẽ phục vụ điểm số
+      rule-based trong khi tất cả mọi người tin rằng model đã train đang chạy.
+      <code class="inline">is_using_fallback</code> tồn tại nhưng không có gì log hay expose nó — hãy đưa nó lên
+      /health và metrics.</li>
+      <li><strong>Skew thứ tự feature:</strong> thứ tự theo khóa đã sort phải khớp chính xác với lúc training;
+      thêm một feature vào <code class="inline">build_features</code> làm dịch mọi vị trí trong vector và âm thầm
+      làm hỏng prediction của model đã train. Production lưu một danh sách feature tường minh cùng với
+      artifact.</li>
+      <li><strong><code class="inline">predict_proba(...).max()</code> không phải là risk score:</strong> đó là
+      độ tự tin của <em>lớp có khả năng nhất</em> — với một prediction "rủi ro thấp" đầy tự tin, nó trả về một số
+      cao rồi bị phân ngưỡng thành "critical". Nó phải là xác suất của lớp positive/rủi-ro-cao.</li>
+      <li><strong>Pickle không an toàn:</strong> load một pickle là thực thi code tùy ý (dòng
+      <code class="inline"># noqa: S301</code> thừa nhận điều đó). Production muốn artifact có chữ ký, ONNX, hoặc
+      joblib chỉ từ một registry tin cậy.</li>
+      <li><strong>feature_importances_ là toàn cục, không theo từng prediction</strong> — mọi request nhận cùng
+      một "lời giải thích". Quy kết trung thực theo từng prediction cần SHAP/TreeExplainer.</li>
     </ul>
   </div>
 
   <div class="callout trade">
-    <div class="title">Production tradeoffs</div>
+    <div class="title">Đánh đổi khi lên production</div>
     <ul>
-      <li>Rule-based → gradient-boosted trees (XGBoost/LightGBM) with SHAP explanations; calibrate probabilities
-      (Platt/isotonic) so thresholds mean what they say.</li>
-      <li>Champion/challenger: keep the rules as a sanity baseline; alert when trained-model outputs diverge wildly
-      from the rule score for the same input.</li>
-      <li>Artifact management moves to MLflow/SageMaker registry with lineage: data version, training code commit,
-      metrics, approval status.</li>
+      <li>Rule-based → cây gradient-boosted (XGBoost/LightGBM) với giải thích SHAP; hiệu chuẩn xác suất
+      (Platt/isotonic) để các ngưỡng có ý nghĩa đúng như tuyên bố.</li>
+      <li>Champion/challenger: giữ bộ quy tắc làm baseline sanity check; cảnh báo khi output của model đã train
+      lệch xa khỏi điểm rule cho cùng một input.</li>
+      <li>Quản lý artifact chuyển sang registry MLflow/SageMaker với lineage: version dữ liệu, commit code
+      training, metrics, trạng thái phê duyệt.</li>
     </ul>
   </div>
 
   <div class="callout talk">
-    <div class="title">Interview talking points</div>
+    <div class="title">Điểm nói chuyện phỏng vấn</div>
     <ul>
-      <li>"Explainability is in the ABC — you cannot register a model here that can't explain itself. For supplier
-      risk (a decision with money on the line), that's a requirement, not a nice-to-have."</li>
-      <li>"The rule model's explanation is provably faithful because the model is additive. The moment we go to trees,
-      faithful attribution costs SHAP compute — that's a real tradeoff to name."</li>
-      <li>Call out the <code class="inline">predict_proba().max()</code> bug yourself if asked to critique the code —
-      it's the exact kind of subtle ML-serving bug interviewers love.</li>
+      <li>"Explainability nằm trong ABC — bạn không thể đăng ký vào đây một model không tự giải thích được. Với
+      rủi ro nhà cung cấp (một quyết định dính đến tiền), đó là một yêu cầu, không phải một thứ có-thì-tốt."</li>
+      <li>"Lời giải thích của rule model trung thực một cách chứng minh được vì model là cộng tính. Ngay khi
+      chuyển sang cây, quy kết trung thực tốn chi phí tính SHAP — đó là một đánh đổi thực sự cần gọi tên."</li>
+      <li>Hãy tự chỉ ra bug <code class="inline">predict_proba().max()</code> nếu được yêu cầu phê bình code —
+      đó chính xác là loại bug ML-serving tinh vi mà người phỏng vấn rất thích.</li>
     </ul>
   </div>
 </section>
@@ -1501,77 +1567,81 @@ explanation = model_version.model_instance.explain(features)
 <!-- ============================================================ -->
 <section id="feature-builder">
   <span class="tag ml">ML</span>
-  <h2><code>ml/feature_builder.py</code> — Deterministic feature engineering</h2>
+  <h2><code>ml/feature_builder.py</code> — Feature engineering deterministic</h2>
 
-  <h3>Purpose</h3>
+  <h3>Mục đích</h3>
   <p>
-    The single transformation from a raw supplier record to the normalized feature dict every model consumes.
-    Both real-time inference and batch scoring call this exact function — one implementation, zero
-    training/serving-skew risk between entry points.
+    Phép biến đổi duy nhất từ một bản ghi nhà cung cấp thô sang dict feature đã chuẩn hóa mà mọi model tiêu thụ.
+    Cả inference thời gian thực lẫn chấm điểm batch đều gọi chính xác hàm này — một implementation duy nhất,
+    không có rủi ro training/serving-skew giữa các điểm vào.
   </p>
 
-  <h3>Key functions</h3>
+  <h3>Các hàm chính</h3>
   <div class="tbl-wrap"><table>
-    <tr><th>Function</th><th>What it does</th></tr>
+    <tr><th>Hàm</th><th>Chức năng</th></tr>
     <tr><td><code>normalize_*</code> (lead_time, defect_rate, late_delivery, order_value)</td>
-        <td>Divide by a domain cap (120 days, 25% defects, 50 late deliveries, $500k) and clamp to [0,1] —
-        min-max scaling with fixed, documented bounds instead of data-dependent statistics.</td></tr>
+        <td>Chia cho một mức trần miền (domain cap: 120 ngày, 25% lỗi, 50 lần giao trễ, $500k) và kẹp vào [0,1] —
+        min-max scaling với các biên cố định, được tài liệu hóa, thay vì thống kê phụ thuộc dữ liệu.</td></tr>
     <tr><td><code>get_country_risk(country)</code></td>
-        <td>Lookup in a 10-country risk table (e.g. DE 0.10 … BD 0.50); <strong>unknown country → 0.5</strong> —
-        "we don't know" is deliberately scored as medium risk, not zero risk.</td></tr>
+        <td>Tra cứu trong một bảng rủi ro 10 quốc gia (ví dụ DE 0.10 … BD 0.50); <strong>quốc gia không xác định
+        → 0.5</strong> — "chúng ta không biết" được cố ý chấm là rủi ro trung bình, không phải rủi ro bằng
+        không.</td></tr>
     <tr><td><code>build_features(supplier_data)</code></td>
-        <td>Assembles the five normalized features plus two engineered ones:
-        <code>defect_cost_interaction</code> (defect_rate × order_value / cap — a 5% defect rate hurts far more on a
-        $400k order) and <code>delivery_reliability</code> (1 − late/cap, an inverted "good" framing).
-        Everything rounded to 6 decimals for stable cache keys and logs.</td></tr>
+        <td>Lắp ráp năm feature đã chuẩn hóa cộng hai feature kỹ thuật (engineered):
+        <code>defect_cost_interaction</code> (defect_rate × order_value / cap — tỷ lệ lỗi 5% gây đau đớn hơn
+        nhiều trên một đơn hàng $400k) và <code>delivery_reliability</code> (1 − late/cap, một cách đóng khung
+        "tốt" đảo ngược). Tất cả làm tròn đến 6 chữ số thập phân để khóa cache và log ổn định.</td></tr>
   </table></div>
 
   <div class="callout why">
-    <div class="title">Why fixed caps instead of fitted scalers</div>
-    <p>A fitted StandardScaler is state that must be versioned, shipped with the model, and kept in sync — the #1
-    source of training/serving skew. Fixed domain caps are stateless, interpretable ("120 days is the worst lead time
-    we consider"), and identical everywhere by construction. The cost: they're opinions, and outliers saturate at 1.0.</p>
+    <div class="title">Tại sao mức trần cố định thay vì scaler đã fit</div>
+    <p>Một StandardScaler đã fit là trạng thái phải được version hóa, ship cùng model, và giữ đồng bộ — nguồn số 1
+    của training/serving skew. Mức trần miền cố định thì không trạng thái, diễn giải được ("120 ngày là lead time
+    tệ nhất mà chúng ta xét"), và giống hệt nhau ở mọi nơi theo cấu trúc. Cái giá: chúng là ý kiến chủ quan, và
+    các outlier bão hòa ở 1.0.</p>
   </div>
 
   <div class="callout warn">
-    <div class="title">What can go wrong</div>
+    <div class="title">Những gì có thể sai</div>
     <ul>
-      <li><strong>KeyError on missing fields:</strong> <code class="inline">build_features</code> indexes raw fields
-      directly (<code class="inline">supplier_data["lead_time_days"]</code>). The API path is safe (Pydantic
-      validated) — but any new caller passing a partial dict crashes. Batch protects itself with
-      <code class="inline">_map_csv_row</code> defaults.</li>
-      <li><strong>Saturation hides magnitude:</strong> 130 and 400 lead-time days both normalize to 1.0. If tails
-      matter, add log-scaling or an "exceeds cap" flag feature.</li>
-      <li><strong>Interaction uses raw defect_rate:</strong> <code class="inline">defect_cost_interaction</code>
-      multiplies the raw rate (0–0.25 typical) by normalized order value, so the interaction lives in a much smaller
-      numeric range than the other features — a trained model handles that, but the rule-model weights ignore this
-      feature entirely (it's not in <code class="inline">_WEIGHTS</code>).</li>
-      <li><strong>Country table maintenance:</strong> a hardcoded geo-risk map is a governance artifact pretending to
-      be code — it needs an owner, sourcing, and review cadence in production.</li>
+      <li><strong>KeyError khi thiếu field:</strong> <code class="inline">build_features</code> truy cập thẳng
+      các field thô (<code class="inline">supplier_data["lead_time_days"]</code>). Đường API thì an toàn
+      (Pydantic đã validate) — nhưng bất kỳ caller mới nào truyền dict thiếu sẽ crash. Batch tự bảo vệ mình bằng
+      các giá trị mặc định trong <code class="inline">_map_csv_row</code>.</li>
+      <li><strong>Bão hòa che giấu độ lớn:</strong> 130 và 400 ngày lead time đều chuẩn hóa về 1.0. Nếu phần đuôi
+      quan trọng, thêm log-scaling hoặc một feature cờ "vượt trần".</li>
+      <li><strong>Interaction dùng defect_rate thô:</strong> <code class="inline">defect_cost_interaction</code>
+      nhân tỷ lệ thô (thường 0–0.25) với giá trị đơn hàng đã chuẩn hóa, nên interaction sống trong một khoảng số
+      nhỏ hơn nhiều so với các feature khác — model đã train xử lý được điều đó, nhưng bộ trọng số của rule model
+      thì bỏ qua feature này hoàn toàn (nó không có trong <code class="inline">_WEIGHTS</code>).</li>
+      <li><strong>Bảo trì bảng quốc gia:</strong> một bản đồ rủi ro địa lý hardcode là một artifact quản trị
+      (governance) đội lốt code — trong production nó cần một người chịu trách nhiệm, nguồn dữ liệu, và nhịp
+      review định kỳ.</li>
     </ul>
   </div>
 
   <div class="callout trade">
-    <div class="title">Production tradeoffs</div>
+    <div class="title">Đánh đổi khi lên production</div>
     <ul>
-      <li>At scale this becomes a <strong>feature store</strong> (Feast, Tecton): batch-computed aggregates
-      (rolling 90-day defect rate) served online with guaranteed training/serving consistency and point-in-time
-      correctness.</li>
-      <li>Feature definitions get versioned; a model artifact pins the feature-set version it was trained on.</li>
-      <li>Add input-validation telemetry: distribution of each raw field, rate of cap saturation, unknown-country
-      rate — these are your feature-drift sensors.</li>
+      <li>Ở quy mô lớn, cái này trở thành một <strong>feature store</strong> (Feast, Tecton): các aggregate tính
+      theo batch (tỷ lệ lỗi trượt 90 ngày) được phục vụ online với bảo đảm nhất quán training/serving và tính
+      đúng đắn point-in-time.</li>
+      <li>Các định nghĩa feature được version hóa; một artifact model ghim (pin) version của bộ feature mà nó
+      được train trên đó.</li>
+      <li>Thêm telemetry validate input: phân phối của từng field thô, tỷ lệ bão hòa trần, tỷ lệ quốc gia không
+      xác định — đây là các cảm biến feature-drift của bạn.</li>
     </ul>
   </div>
 
   <div class="callout talk">
-    <div class="title">Interview talking points</div>
+    <div class="title">Điểm nói chuyện phỏng vấn</div>
     <ul>
-      <li>"One feature function shared by online and batch paths is my skew story: there is no second implementation
-      to drift."</li>
-      <li>"Unknown country defaults to 0.5, not 0 — missing data as 'medium risk' is a domain decision encoded in
-      code, and I can point at the line."</li>
-      <li>"Interaction features are where domain knowledge enters: defect_rate × order_value expresses that quality
-      problems scale with financial exposure — a linear model can't learn that on its own."</li>
+      <li>"Một hàm feature duy nhất dùng chung cho đường online và batch là câu chuyện chống skew của tôi:
+      không tồn tại một implementation thứ hai để mà trôi dạt."</li>
+      <li>"Quốc gia không xác định mặc định là 0.5, không phải 0 — dữ liệu thiếu được coi là 'rủi ro trung bình'
+      là một quyết định nghiệp vụ được mã hóa trong code, và tôi chỉ được đúng dòng đó."</li>
+      <li>"Các interaction feature là nơi tri thức miền đi vào: defect_rate × order_value diễn đạt rằng vấn đề
+      chất lượng tỷ lệ thuận với mức phơi nhiễm tài chính — một model tuyến tính không tự học được điều đó."</li>
     </ul>
   </div>
 </section>
@@ -1579,75 +1649,77 @@ explanation = model_version.model_instance.explain(features)
 <!-- ============================================================ -->
 <section id="model-registry">
   <span class="tag ml">ML</span>
-  <h2><code>ml/model_registry.py</code> — Model versioning and stage management</h2>
+  <h2><code>ml/model_registry.py</code> — Version hóa model và quản lý stage</h2>
 
-  <h3>Purpose</h3>
+  <h3>Mục đích</h3>
   <p>
-    An in-memory registry mapping versions to <code class="inline">ModelVersion</code> records
-    (name, semver, stage, live model instance, registration timestamp). Stages are a typed
-    <code class="inline">Literal["production", "canary", "archived"]</code> — the standard promotion lifecycle.
-    On construction it bootstraps <code class="inline">supplier-risk-rule-based v1.0.0</code> into production so the
-    platform always has a servable model.
+    Một registry in-memory ánh xạ các version sang các bản ghi <code class="inline">ModelVersion</code>
+    (tên, semver, stage, instance model đang sống, timestamp đăng ký). Stage là một
+    <code class="inline">Literal["production", "canary", "archived"]</code> có kiểu — vòng đời promotion tiêu
+    chuẩn. Khi khởi tạo, nó bootstrap <code class="inline">supplier-risk-rule-based v1.0.0</code> vào production
+    để nền tảng luôn luôn có một model phục vụ được.
   </p>
 
-  <h3>Key functions</h3>
+  <h3>Các hàm chính</h3>
   <div class="tbl-wrap"><table>
-    <tr><th>Member</th><th>What it does</th></tr>
+    <tr><th>Thành phần</th><th>Chức năng</th></tr>
     <tr><td><code>register(name, version, stage, model_instance)</code></td>
-        <td>Creates and stores a <code>ModelVersion</code> keyed by version string; returns the entry.</td></tr>
+        <td>Tạo và lưu một <code>ModelVersion</code> với khóa là chuỗi version; trả về entry đó.</td></tr>
     <tr><td><code>get_production()</code></td>
-        <td>Linear scan for the first version staged "production" — the lookup inference and batch make on
-        <em>every</em> prediction, which is what makes promotion instant.</td></tr>
+        <td>Quét tuyến tính tìm version đầu tiên ở stage "production" — phép tra cứu mà inference và batch thực
+        hiện trên <em>mỗi</em> prediction, và chính điều đó khiến promotion có hiệu lực tức thì.</td></tr>
     <tr><td><code>get_by_version(v)</code> / <code>list_versions()</code></td>
-        <td>Direct lookup (pinned scoring, A/B) / enumeration for a models API.</td></tr>
+        <td>Tra cứu trực tiếp (chấm điểm ghim version, A/B) / liệt kê cho một API models.</td></tr>
   </table></div>
 
   <div class="callout why">
-    <div class="title">Why indirection between callers and models</div>
-    <p>No service ever constructs a model — they ask the registry for "current production". That single indirection
-    is what makes deploy-time model swaps, canaries, and rollbacks possible without code changes: promotion is a
-    registry state change, not a redeploy. The bootstrap default encodes "the platform must never have zero servable
-    models".</p>
+    <div class="title">Tại sao có lớp gián tiếp giữa caller và model</div>
+    <p>Không service nào tự khởi tạo model — chúng hỏi registry xin "production hiện tại". Chính một lớp gián
+    tiếp duy nhất đó làm cho việc hoán đổi model lúc deploy, canary và rollback trở nên khả thi mà không cần
+    thay đổi code: promotion là một thay đổi trạng thái của registry, không phải một lần redeploy. Bản bootstrap
+    mặc định mã hóa quy tắc "nền tảng không bao giờ được có 0 model phục vụ được".</p>
   </div>
 
   <div class="callout warn">
-    <div class="title">What can go wrong</div>
+    <div class="title">Những gì có thể sai</div>
     <ul>
-      <li><strong>Nothing prevents two "production" versions</strong> — <code class="inline">register()</code> doesn't
-      demote the incumbent, and <code class="inline">get_production()</code> returns whichever iterates first
-      (dict insertion order). Promotion must be atomic: promote-new + demote-old in one operation.</li>
-      <li><strong>Keying by version only:</strong> two different model <em>names</em> with the same version string
-      collide and overwrite. Key should be (name, version).</li>
-      <li><strong>Multiple registry instances:</strong> <code class="inline">InferenceService</code> and
-      <code class="inline">BatchService</code> each construct their own <code class="inline">ModelRegistry()</code>.
-      They agree today only because bootstrap is deterministic — register a canary in one and the other never sees it.
-      The registry should be a shared singleton (or external service).</li>
-      <li><strong>In-memory = amnesia:</strong> restart loses all registrations except bootstrap; there's no audit
-      trail of who promoted what when.</li>
+      <li><strong>Không có gì ngăn hai version "production"</strong> — <code class="inline">register()</code>
+      không hạ bậc (demote) version đương nhiệm, và <code class="inline">get_production()</code> trả về version
+      nào lặp ra trước (thứ tự chèn của dict). Promotion phải là atomic: promote-mới + demote-cũ trong một thao
+      tác.</li>
+      <li><strong>Khóa chỉ theo version:</strong> hai model có <em>tên</em> khác nhau nhưng cùng chuỗi version sẽ
+      va chạm và ghi đè nhau. Khóa nên là (name, version).</li>
+      <li><strong>Nhiều instance registry:</strong> <code class="inline">InferenceService</code> và
+      <code class="inline">BatchService</code> mỗi bên tự khởi tạo <code class="inline">ModelRegistry()</code>
+      riêng. Hôm nay chúng khớp nhau chỉ vì bootstrap là deterministic — đăng ký một canary ở bên này thì bên kia
+      không bao giờ thấy. Registry nên là một singleton dùng chung (hoặc một service bên ngoài).</li>
+      <li><strong>In-memory = mất trí nhớ:</strong> restart mất mọi đăng ký trừ bản bootstrap; không có vệt audit
+      về ai đã promote cái gì khi nào.</li>
     </ul>
   </div>
 
   <div class="callout trade">
-    <div class="title">Production tradeoffs</div>
+    <div class="title">Đánh đổi khi lên production</div>
     <ul>
-      <li>This is the interface of <strong>MLflow Model Registry</strong> / SageMaker Model Registry: persistent
-      versions, stage transitions with approval workflows, lineage to training runs, artifact storage.</li>
-      <li>Canary stage becomes real traffic splitting (5% → compare metrics → promote/rollback), driven by the
-      registry's stage field.</li>
-      <li>Registry state changes should emit events — cache invalidation (the stale-prediction issue from
-      inference_service) hangs off "model promoted".</li>
+      <li>Đây chính là interface của <strong>MLflow Model Registry</strong> / SageMaker Model Registry: version
+      bền vững, chuyển stage với quy trình phê duyệt, lineage tới các lần chạy training, lưu trữ artifact.</li>
+      <li>Stage canary trở thành chia lưu lượng thật (5% → so sánh metrics → promote/rollback), được điều khiển
+      bởi trường stage của registry.</li>
+      <li>Các thay đổi trạng thái của registry nên phát event — việc invalidate cache (vấn đề prediction cũ từ
+      inference_service) móc vào sự kiện "model promoted".</li>
     </ul>
   </div>
 
   <div class="callout talk">
-    <div class="title">Interview talking points</div>
+    <div class="title">Điểm nói chuyện phỏng vấn</div>
     <ul>
-      <li>"Model registry is the control plane of MLOps: deployment = stage transition, rollback = stage transition.
-      My version is in-memory, but every caller already speaks the registry protocol, so swapping in MLflow touches
-      one class."</li>
-      <li>"I typed stages as a Literal so an invalid stage is a type error, not a runtime surprise."</li>
-      <li>Discuss the dual-instance flaw proactively — spotting shared-state bugs across service boundaries is a
-      senior signal.</li>
+      <li>"Model registry là control plane của MLOps: deploy = chuyển stage, rollback = chuyển stage. Bản của tôi
+      là in-memory, nhưng mọi caller đều đã nói chuyện theo giao thức registry, nên lắp MLflow vào chỉ đụng đến
+      một class."</li>
+      <li>"Tôi định kiểu stage bằng Literal để một stage không hợp lệ là lỗi type, không phải một bất ngờ lúc
+      runtime."</li>
+      <li>Hãy chủ động thảo luận lỗ hổng hai-instance — phát hiện bug shared-state xuyên ranh giới service là một
+      tín hiệu senior.</li>
     </ul>
   </div>
 </section>
@@ -1657,78 +1729,81 @@ explanation = model_version.model_instance.explain(features)
 <!-- ============================================================ -->
 <section id="vector-store">
   <span class="tag stor">Storage</span>
-  <h2><code>storage/vector_store.py</code> — In-memory vector search</h2>
+  <h2><code>storage/vector_store.py</code> — Vector search in-memory</h2>
 
-  <h3>Purpose</h3>
+  <h3>Mục đích</h3>
   <p>
-    A minimal vector database: parallel structures of document dicts and an <code class="inline">np.ndarray</code>
-    embedding matrix, with thread-safe add/search/clear. Search is exact (brute-force) cosine similarity —
-    <em>with the crucial twist that the permission filter runs before any similarity math</em>.
+    Một vector database tối giản: hai cấu trúc song song gồm danh sách dict tài liệu và một ma trận embedding
+    <code class="inline">np.ndarray</code>, với add/search/clear an toàn theo thread. Tìm kiếm là cosine
+    similarity chính xác (brute-force) — <em>với điểm xoắn then chốt là permission filter chạy trước mọi phép
+    toán tương đồng</em>.
   </p>
 
-  <h3>Key functions</h3>
+  <h3>Các hàm chính</h3>
   <div class="tbl-wrap"><table>
-    <tr><th>Member</th><th>What it does</th></tr>
+    <tr><th>Thành phần</th><th>Chức năng</th></tr>
     <tr><td><code>add_documents(docs, embeddings)</code></td>
-        <td>Appends docs; vstacks embeddings onto the existing matrix (or sets it). Lock-guarded so concurrent adds
-        can't interleave docs and rows out of sync.</td></tr>
+        <td>Nối thêm các tài liệu; vstack embeddings vào ma trận hiện có (hoặc gán mới). Được bảo vệ bằng lock để
+        các lần add đồng thời không thể làm tài liệu và hàng ma trận xen kẽ lệch nhau.</td></tr>
     <tr><td><code>search(query_embedding, top_k, filter_fn)</code></td>
-        <td>1) Build the candidate list, skipping any doc rejected by <code>filter_fn</code> (permission pre-filter).
-        2) Slice the embedding matrix to candidate rows. 3) Normalize query and candidates (with +1e-10 epsilon
-        against zero vectors), compute cosine similarities in one matrix-vector product. 4)
-        <code>np.argsort(...)[::-1][:top_k]</code>, return docs with float scores and metadata.</td></tr>
-    <tr><td><code>clear()</code></td><td>Resets both structures — used by tests and reseeding.</td></tr>
+        <td>1) Dựng danh sách ứng viên, bỏ qua mọi tài liệu bị <code>filter_fn</code> từ chối (pre-filter theo
+        quyền). 2) Cắt ma trận embedding theo các hàng ứng viên. 3) Chuẩn hóa query và ứng viên (với epsilon
+        +1e-10 chống vector không), tính cosine similarity trong một phép nhân ma trận-vector duy nhất. 4)
+        <code>np.argsort(...)[::-1][:top_k]</code>, trả về tài liệu kèm điểm float và metadata.</td></tr>
+    <tr><td><code>clear()</code></td><td>Reset cả hai cấu trúc — dùng bởi test và khi reseed.</td></tr>
   </table></div>
 
   <div class="callout why">
-    <div class="title">Why brute-force, and why filter-then-rank</div>
-    <p>Exact search over a few hundred docs is a single NumPy matmul — microseconds, with perfect recall. ANN indexes
-    (HNSW/IVF) only earn their complexity around 10⁵–10⁶ vectors. Filtering <em>before</em> ranking serves the
-    security invariant (unauthorized docs never scored) and also mirrors a hard real-world problem: filtered ANN
-    search is genuinely difficult (filters break graph connectivity in HNSW), which is why vector DBs advertise
-    pre-filtering support as a feature.</p>
+    <div class="title">Tại sao brute-force, và tại sao lọc-rồi-mới-xếp-hạng</div>
+    <p>Tìm kiếm chính xác trên vài trăm tài liệu là một phép matmul NumPy duy nhất — vài micro giây, với recall
+    hoàn hảo. Các index ANN (HNSW/IVF) chỉ xứng đáng với độ phức tạp của chúng từ khoảng 10⁵–10⁶ vector. Lọc
+    <em>trước</em> khi xếp hạng phục vụ bất biến bảo mật (tài liệu không được phép không bao giờ được chấm điểm)
+    và đồng thời phản chiếu một bài toán khó có thật ngoài đời: filtered ANN search thực sự khó (filter phá vỡ
+    tính liên thông của đồ thị trong HNSW), đó là lý do các vector DB quảng cáo hỗ trợ pre-filtering như một tính
+    năng.</p>
   </div>
 
   <div class="callout warn">
-    <div class="title">What can go wrong</div>
+    <div class="title">Những gì có thể sai</div>
     <ul>
-      <li><strong>Docs/embeddings desync:</strong> <code class="inline">add_documents</code> accepts docs with
-      <code class="inline">embeddings=None</code> (the seeding path does this; EmbeddingService fills the matrix
-      later). Between those moments, index positions must stay aligned — any code that adds docs after embedding
-      bootstrap breaks the parallel-array invariant and returns <em>wrong documents for right scores</em>.
-      Nastiest possible bug class: no exception, just subtly wrong results.</li>
-      <li><strong>Unlocked emptiness check:</strong> the <code class="inline">if not self.documents or self.embeddings is None</code>
-      guard runs before acquiring the lock — a benign race here, but a reminder that check-then-act needs the lock in
-      general.</li>
-      <li><strong>Full argsort:</strong> O(n log n) over all candidates when top-k needs only
-      <code class="inline">np.argpartition</code> O(n). Irrelevant at this size; the first profiler finding at scale.</li>
-      <li><strong>No persistence:</strong> restart → empty store until reseed + re-embed. Fine because seeding is in
-      the lifespan hook; surprising if you forget that.</li>
+      <li><strong>Lệch đồng bộ docs/embeddings:</strong> <code class="inline">add_documents</code> chấp nhận tài
+      liệu với <code class="inline">embeddings=None</code> (đường seeding làm vậy; EmbeddingService điền ma trận
+      sau). Giữa hai thời điểm đó, các vị trí index phải giữ nguyên thẳng hàng — bất kỳ code nào thêm tài liệu sau
+      khi embedding đã bootstrap sẽ phá vỡ bất biến mảng-song-song và trả về <em>tài liệu sai cho điểm số
+      đúng</em>. Lớp bug tồi tệ nhất có thể: không exception, chỉ có kết quả sai một cách tinh vi.</li>
+      <li><strong>Kiểm tra rỗng không có lock:</strong> guard
+      <code class="inline">if not self.documents or self.embeddings is None</code> chạy trước khi lấy lock — một
+      race vô hại ở đây, nhưng là lời nhắc rằng check-then-act nói chung cần lock.</li>
+      <li><strong>Argsort đầy đủ:</strong> O(n log n) trên toàn bộ ứng viên trong khi top-k chỉ cần
+      <code class="inline">np.argpartition</code> O(n). Không đáng kể ở kích thước này; là phát hiện đầu tiên của
+      profiler khi scale.</li>
+      <li><strong>Không có persistence:</strong> restart → store rỗng cho tới khi reseed + re-embed. Ổn vì
+      seeding nằm trong lifespan hook; gây bất ngờ nếu bạn quên điều đó.</li>
     </ul>
   </div>
 
   <div class="callout trade">
-    <div class="title">Production tradeoffs</div>
+    <div class="title">Đánh đổi khi lên production</div>
     <ul>
-      <li>Path of least resistance: <strong>pgvector</strong> — vectors live next to relational data, permission
-      filters become WHERE clauses, one database to operate. Dedicated engines (Qdrant, Weaviate, Milvus, Pinecone)
-      when scale/latency demand ANN + sharding.</li>
-      <li>ANN introduces a recall/latency dial (HNSW ef_search) — retrieval quality becomes a tunable, which is
-      exactly why the golden-set evaluation exists.</li>
-      <li>Store doc + chunk + embedding-model-version together; the version mismatch problem from
-      embedding_service is solved at the schema level.</li>
+      <li>Con đường ít trở ngại nhất: <strong>pgvector</strong> — vector sống cạnh dữ liệu quan hệ, filter quyền
+      trở thành mệnh đề WHERE, chỉ một database để vận hành. Các engine chuyên dụng (Qdrant, Weaviate, Milvus,
+      Pinecone) khi quy mô/latency đòi hỏi ANN + sharding.</li>
+      <li>ANN đưa vào một núm điều chỉnh recall/latency (ef_search của HNSW) — chất lượng retrieval trở thành thứ
+      tune được, và đó chính xác là lý do đánh giá golden-set tồn tại.</li>
+      <li>Lưu tài liệu + chunk + version của embedding model cùng nhau; bài toán lệch version từ
+      embedding_service được giải ở cấp schema.</li>
     </ul>
   </div>
 
   <div class="callout talk">
-    <div class="title">Interview talking points</div>
+    <div class="title">Điểm nói chuyện phỏng vấn</div>
     <ul>
-      <li>"Brute-force cosine is the right call under ~100k vectors — perfect recall, one matmul, no index ops.
-      Knowing when <em>not</em> to use a vector database is the senior answer."</li>
-      <li>"Pre-filtered search is the hard part of real vector DBs — filters break HNSW graph traversal. My
-      linear-scan store gets it trivially; that's the tradeoff conversation."</li>
-      <li>"The parallel-array invariant (docs[i] ↔ embeddings[i]) is the store's core fragility — in production the
-      pairing is a single row/point, never two structures."</li>
+      <li>"Cosine brute-force là lựa chọn đúng dưới ~100k vector — recall hoàn hảo, một phép matmul, không phải
+      vận hành index. Biết khi nào <em>không</em> dùng vector database mới là câu trả lời senior."</li>
+      <li>"Pre-filtered search là phần khó của các vector DB thật — filter phá vỡ việc duyệt đồ thị HNSW. Store
+      quét tuyến tính của tôi có nó một cách hiển nhiên; đó là cuộc trò chuyện về đánh đổi."</li>
+      <li>"Bất biến mảng-song-song (docs[i] ↔ embeddings[i]) là điểm mong manh cốt lõi của store — trong
+      production, cặp đôi đó là một hàng/point duy nhất, không bao giờ là hai cấu trúc."</li>
     </ul>
   </div>
 </section>
@@ -1736,75 +1811,78 @@ explanation = model_version.model_instance.explain(features)
 <!-- ============================================================ -->
 <section id="database">
   <span class="tag stor">Storage</span>
-  <h2><code>storage/database.py</code> — SQLite schema and connections</h2>
+  <h2><code>storage/database.py</code> — Schema SQLite và connection</h2>
 
-  <h3>Purpose</h3>
+  <h3>Mục đích</h3>
   <p>
-    Owns the entire relational schema (idempotent <code class="inline">CREATE TABLE IF NOT EXISTS</code> script) and
-    connection construction. Four tables: <code class="inline">request_history</code> (audit log),
-    <code class="inline">batch_jobs</code> (job lifecycle + results blob), <code class="inline">batch_job_items</code>
-    (per-item results — schema-ready, not yet used by the service), and <code class="inline">cache_entries</code>
-    (persistent cache tier with TTL).
+    Sở hữu toàn bộ schema quan hệ (script <code class="inline">CREATE TABLE IF NOT EXISTS</code> idempotent) và
+    việc khởi tạo connection. Bốn bảng: <code class="inline">request_history</code> (log audit),
+    <code class="inline">batch_jobs</code> (vòng đời job + blob kết quả), <code class="inline">batch_job_items</code>
+    (kết quả theo từng item — schema đã sẵn sàng, service chưa dùng), và <code class="inline">cache_entries</code>
+    (tầng cache bền vững với TTL).
   </p>
 
-  <h3>Key functions</h3>
+  <h3>Các hàm chính</h3>
   <div class="tbl-wrap"><table>
-    <tr><th>Function</th><th>What it does</th></tr>
+    <tr><th>Hàm</th><th>Chức năng</th></tr>
     <tr><td><code>init_db()</code></td>
-        <td>Creates the data directory (<code>mkdir(parents=True, exist_ok=True)</code>) and runs the schema script.
-        Idempotent — safe on every startup; called from the FastAPI lifespan hook.</td></tr>
+        <td>Tạo thư mục dữ liệu (<code>mkdir(parents=True, exist_ok=True)</code>) và chạy script schema.
+        Idempotent — an toàn ở mỗi lần khởi động; được gọi từ lifespan hook của FastAPI.</td></tr>
     <tr><td><code>get_connection()</code></td>
-        <td>New connection per call with three deliberate settings:
-        <code>row_factory = sqlite3.Row</code> (dict-like rows → <code>dict(row)</code> in repositories),
-        <code>PRAGMA journal_mode=WAL</code> (readers don't block the writer — essential since batch threads write
-        while API requests read), and <code>PRAGMA foreign_keys=ON</code> (off by default in SQLite!).</td></tr>
+        <td>Connection mới mỗi lần gọi với ba thiết lập có chủ đích:
+        <code>row_factory = sqlite3.Row</code> (row kiểu dict → <code>dict(row)</code> trong repository),
+        <code>PRAGMA journal_mode=WAL</code> (reader không chặn writer — thiết yếu vì các thread batch ghi trong
+        khi các request API đọc), và <code>PRAGMA foreign_keys=ON</code> (SQLite mặc định tắt!).</td></tr>
   </table></div>
 
   <div class="callout why">
-    <div class="title">Why SQLite, and why WAL</div>
-    <p>Zero-ops, single-file, transactional, and honestly sufficient for a demo platform's write volume. WAL mode is
-    the non-obvious expert choice: default rollback-journal mode lets a single writer block all readers; WAL gives
-    concurrent readers + one writer, which this app genuinely needs (background batch thread writing progress while
-    monitoring reads history).</p>
+    <div class="title">Tại sao SQLite, và tại sao WAL</div>
+    <p>Không cần vận hành gì (zero-ops), một file duy nhất, có transaction, và thành thật mà nói là đủ cho khối
+    lượng ghi của một nền tảng demo. Chế độ WAL là lựa chọn chuyên gia không hiển nhiên: chế độ rollback-journal
+    mặc định cho phép một writer duy nhất chặn tất cả reader; WAL cho nhiều reader đồng thời + một writer, đúng
+    thứ ứng dụng này thực sự cần (thread batch chạy nền ghi tiến độ trong khi monitoring đọc history).</p>
   </div>
 
   <div class="callout warn">
-    <div class="title">What can go wrong</div>
+    <div class="title">Những gì có thể sai</div>
     <ul>
-      <li><strong>"database is locked":</strong> WAL still allows only one writer; concurrent writers (batch progress +
-      history inserts) can collide. No <code class="inline">busy_timeout</code> is set, so a collision raises
-      immediately instead of waiting. First fix: <code class="inline">PRAGMA busy_timeout=5000</code>.</li>
-      <li><strong>Connection-per-operation overhead:</strong> every repository method opens/closes a connection —
-      correct and leak-proof, but each open re-runs PRAGMAs. A pool (or thread-local connections) is the next step.</li>
-      <li><strong>No migration story:</strong> <code class="inline">IF NOT EXISTS</code> creates but never alters —
-      adding a column to an existing deployment silently does nothing. Real evolution needs Alembic-style versioned
-      migrations.</li>
-      <li><strong>No indexes:</strong> <code class="inline">request_history</code> is queried by endpoint and ordered
-      by timestamp with no index on either — table scans that grow with the audit log.</li>
-      <li><strong>Timestamps:</strong> <code class="inline">CURRENT_TIMESTAMP</code> is UTC but stored without
-      timezone info; note the careful <code class="inline">replace(tzinfo=timezone.utc)</code> dance in
-      CacheRepository — mixing naive and aware datetimes is a classic TTL bug source.</li>
+      <li><strong>"database is locked":</strong> WAL vẫn chỉ cho phép một writer; các writer đồng thời (tiến độ
+      batch + insert history) có thể va chạm. Không có <code class="inline">busy_timeout</code> nào được đặt, nên
+      một va chạm raise ngay lập tức thay vì chờ. Bản sửa đầu tiên:
+      <code class="inline">PRAGMA busy_timeout=5000</code>.</li>
+      <li><strong>Overhead connection-per-operation:</strong> mỗi method repository mở/đóng một connection —
+      đúng đắn và không rò rỉ, nhưng mỗi lần mở lại chạy lại các PRAGMA. Một pool (hoặc connection thread-local)
+      là bước tiếp theo.</li>
+      <li><strong>Không có câu chuyện migration:</strong> <code class="inline">IF NOT EXISTS</code> tạo nhưng
+      không bao giờ sửa (alter) — thêm một cột vào một deployment hiện có sẽ âm thầm không làm gì cả. Tiến hóa
+      schema thật cần migration có version kiểu Alembic.</li>
+      <li><strong>Không có index:</strong> <code class="inline">request_history</code> được truy vấn theo
+      endpoint và sắp theo timestamp mà không có index trên cả hai — các cú quét bảng lớn dần cùng log audit.</li>
+      <li><strong>Timestamp:</strong> <code class="inline">CURRENT_TIMESTAMP</code> là UTC nhưng được lưu không
+      kèm thông tin múi giờ; để ý điệu nhảy <code class="inline">replace(tzinfo=timezone.utc)</code> cẩn thận
+      trong CacheRepository — trộn lẫn datetime naive và aware là nguồn bug TTL kinh điển.</li>
     </ul>
   </div>
 
   <div class="callout trade">
-    <div class="title">Production tradeoffs</div>
+    <div class="title">Đánh đổi khi lên production</div>
     <ul>
-      <li>Postgres for multi-writer concurrency, real types (JSONB, TIMESTAMPTZ), and — with pgvector — the vector
-      store merges into the same database.</li>
-      <li>Repositories keep raw SQL isolated, so the migration is mechanical: swap the connection factory, parameter
-      style, and upsert syntax. That containment was the design goal.</li>
-      <li>Introduce connection pooling (or SQLAlchemy engine) and versioned migrations before any schema change ships.</li>
+      <li>Postgres cho concurrency nhiều writer, kiểu dữ liệu thật (JSONB, TIMESTAMPTZ), và — với pgvector —
+      vector store gộp vào cùng một database.</li>
+      <li>Repository giữ SQL thô được cô lập, nên cuộc migration mang tính cơ học: đổi connection factory, kiểu
+      tham số, và cú pháp upsert. Sự giới hạn phạm vi đó chính là mục tiêu thiết kế.</li>
+      <li>Đưa vào connection pooling (hoặc SQLAlchemy engine) và migration có version trước khi bất kỳ thay đổi
+      schema nào được ship.</li>
     </ul>
   </div>
 
   <div class="callout talk">
-    <div class="title">Interview talking points</div>
+    <div class="title">Điểm nói chuyện phỏng vấn</div>
     <ul>
-      <li>"Two PRAGMAs show I know SQLite's sharp edges: WAL for reader/writer concurrency, and foreign_keys=ON
-      because SQLite ships with FK enforcement <em>disabled</em>."</li>
-      <li>"SQLite-to-Postgres is a swap of the connection factory precisely because no SQL leaks above the repository
-      layer."</li>
+      <li>"Hai PRAGMA cho thấy tôi biết các cạnh sắc của SQLite: WAL cho concurrency reader/writer, và
+      foreign_keys=ON vì SQLite xuất xưởng với việc thực thi FK bị <em>tắt</em>."</li>
+      <li>"SQLite-sang-Postgres chỉ là hoán đổi connection factory chính xác bởi vì không có SQL nào rò rỉ lên
+      trên tầng repository."</li>
     </ul>
   </div>
 </section>
@@ -1812,86 +1890,90 @@ explanation = model_version.model_instance.explain(features)
 <!-- ============================================================ -->
 <section id="repositories">
   <span class="tag stor">Storage</span>
-  <h2><code>storage/repositories.py</code> — Data-access layer</h2>
+  <h2><code>storage/repositories.py</code> — Tầng truy cập dữ liệu</h2>
 
-  <h3>Purpose</h3>
+  <h3>Mục đích</h3>
   <p>
-    All SQL in the codebase lives here, in three repositories mapping 1:1 to concerns: history, batch jobs, cache.
-    Services speak dicts; repositories speak SQL. Every method is parameterized (no string-built SQL) and uses
-    <code class="inline">try/finally conn.close()</code> so connections never leak, even on error.
+    Toàn bộ SQL của codebase sống ở đây, trong ba repository ánh xạ 1:1 với các mối quan tâm: history, batch job,
+    cache. Service nói chuyện bằng dict; repository nói chuyện bằng SQL. Mọi method đều dùng tham số hóa
+    (parameterized — không có SQL ghép chuỗi) và dùng <code class="inline">try/finally conn.close()</code> để
+    connection không bao giờ rò rỉ, kể cả khi có lỗi.
   </p>
 
-  <h3>Key methods</h3>
+  <h3>Các method chính</h3>
   <div class="tbl-wrap"><table>
-    <tr><th>Repository</th><th>Highlights</th></tr>
+    <tr><th>Repository</th><th>Điểm nổi bật</th></tr>
     <tr><td><code>HistoryRepository</code></td>
-        <td><code>insert()</code> with named parameters, JSON-encoding the payload dict;
-        <code>query()</code> newest-first with optional endpoint filter and limit; <code>count()</code>.</td></tr>
+        <td><code>insert()</code> với tham số có tên, mã hóa JSON cho dict payload;
+        <code>query()</code> mới nhất trước với filter endpoint tùy chọn và limit; <code>count()</code>.</td></tr>
     <tr><td><code>BatchJobRepository</code></td>
-        <td>Job lifecycle: <code>create()</code> (status "pending", returns the created row),
-        <code>update_progress()</code> (processed/failed counts), <code>update_status()</code> — which stamps
-        <code>completed_at</code> automatically when status enters a terminal state ("completed"/"failed"),
+        <td>Vòng đời job: <code>create()</code> (status "pending", trả về dòng vừa tạo),
+        <code>update_progress()</code> (số processed/failed), <code>update_status()</code> — tự động đóng dấu
+        <code>completed_at</code> khi status đi vào trạng thái kết thúc ("completed"/"failed"),
         <code>get()</code>, <code>list_all()</code>.</td></tr>
     <tr><td><code>CacheRepository</code></td>
-        <td><code>get()</code> enforces TTL: computes elapsed seconds since <code>created_at</code>
-        (re-attaching UTC tzinfo) and lazily deletes + returns None when expired.
-        <code>set()</code> is an atomic upsert via <code>INSERT ... ON CONFLICT(cache_key) DO UPDATE</code>,
-        resetting <code>created_at</code> so TTL restarts on overwrite. <code>clear_expired()</code> bulk-deletes
-        using <code>julianday()</code> arithmetic entirely in SQL.</td></tr>
+        <td><code>get()</code> thực thi TTL: tính số giây trôi qua kể từ <code>created_at</code>
+        (gắn lại tzinfo UTC) và xóa một cách lười + trả None khi hết hạn.
+        <code>set()</code> là một upsert atomic qua <code>INSERT ... ON CONFLICT(cache_key) DO UPDATE</code>,
+        reset <code>created_at</code> để TTL khởi động lại khi ghi đè. <code>clear_expired()</code> xóa hàng loạt
+        bằng phép tính <code>julianday()</code> hoàn toàn trong SQL.</td></tr>
   </table></div>
 
   <div class="callout why">
-    <div class="title">Why the repository pattern (and lazy TTL)</div>
-    <p>Services stay testable (fake a repo, no DB) and the SQLite→Postgres migration is contained to this file.
-    Lazy expiration — checking TTL on read instead of running a background sweeper — is exactly how Redis handles
-    expiry for most keys: no timer machinery, expired entries cost nothing until touched, and
-    <code class="inline">clear_expired()</code> exists for occasional bulk cleanup.</p>
+    <div class="title">Tại sao pattern repository (và TTL lười)</div>
+    <p>Service giữ được tính test được (fake một repo, không cần DB) và cuộc migration SQLite→Postgres được gói
+    gọn trong file này. Hết hạn lười (lazy expiration) — kiểm tra TTL lúc đọc thay vì chạy một bộ quét nền —
+    chính là cách Redis xử lý hết hạn cho phần lớn các khóa: không cần bộ máy hẹn giờ, entry hết hạn không tốn gì
+    cho tới khi bị chạm vào, và <code class="inline">clear_expired()</code> tồn tại cho dọn dẹp hàng loạt thỉnh
+    thoảng.</p>
   </div>
 
   <div class="callout warn">
-    <div class="title">What can go wrong</div>
+    <div class="title">Những gì có thể sai</div>
     <ul>
-      <li><strong>update_status(job_id, "running") nulls results:</strong> <code class="inline">update_status</code>
-      always writes the <code class="inline">results</code> column — passing no results on an intermediate transition
-      sets it to NULL. Harmless in the current call order (results only exist at completion), but a trap for the next
-      caller. Partial-update SQL should only touch provided columns.</li>
-      <li><strong>Naive-vs-aware datetime handling</strong> in <code class="inline">CacheRepository.get()</code>:
-      <code class="inline">created_at</code> parses as naive and gets UTC re-attached manually. It works because
-      SQLite's CURRENT_TIMESTAMP is UTC — but that assumption is one column default away from a subtle TTL bug
-      (entries expiring 7 hours early/late depending on server timezone).</li>
-      <li><strong>Two TTL implementations must agree:</strong> <code class="inline">get()</code> uses Python datetime
-      math; <code class="inline">clear_expired()</code> uses SQL julianday math. If their semantics ever diverge,
-      reads and sweeps disagree about what's expired.</li>
-      <li><strong>No transactions across calls:</strong> each method commits independently; a multi-step operation
-      (e.g. create job + first progress update) is not atomic. Fine for current usage; a unit-of-work pattern if it
-      grows.</li>
+      <li><strong>update_status(job_id, "running") xóa trắng results:</strong>
+      <code class="inline">update_status</code> luôn ghi vào cột <code class="inline">results</code> — không
+      truyền results ở một bước chuyển trung gian sẽ đặt nó thành NULL. Vô hại theo thứ tự gọi hiện tại (results
+      chỉ tồn tại lúc hoàn thành), nhưng là cái bẫy cho caller kế tiếp. SQL partial-update chỉ nên đụng đến các
+      cột được cung cấp.</li>
+      <li><strong>Xử lý datetime naive-vs-aware</strong> trong <code class="inline">CacheRepository.get()</code>:
+      <code class="inline">created_at</code> được parse dưới dạng naive rồi được gắn UTC lại thủ công. Nó chạy
+      đúng vì CURRENT_TIMESTAMP của SQLite là UTC — nhưng giả định đó chỉ cách một default cột khác một bước là
+      thành bug TTL tinh vi (entry hết hạn sớm/muộn 7 giờ tùy múi giờ server).</li>
+      <li><strong>Hai implementation TTL phải khớp nhau:</strong> <code class="inline">get()</code> dùng phép
+      tính datetime Python; <code class="inline">clear_expired()</code> dùng phép tính julianday SQL. Nếu ngữ
+      nghĩa của chúng có lúc nào lệch nhau, việc đọc và việc quét sẽ bất đồng về cái gì đã hết hạn.</li>
+      <li><strong>Không có transaction xuyên các lời gọi:</strong> mỗi method commit độc lập; một thao tác nhiều
+      bước (ví dụ tạo job + lần cập nhật tiến độ đầu tiên) không atomic. Ổn với cách dùng hiện tại; cần pattern
+      unit-of-work nếu nó lớn lên.</li>
     </ul>
   </div>
 
   <div class="callout trade">
-    <div class="title">Production tradeoffs</div>
+    <div class="title">Đánh đổi khi lên production</div>
     <ul>
-      <li>Hand-rolled repos vs ORM: raw SQL keeps the demo transparent and dependency-light; SQLAlchemy Core is the
-      sweet spot at team scale (typed, composable, still explicit).</li>
-      <li>The upsert-with-timestamp-reset in <code class="inline">CacheRepository.set()</code> maps 1:1 to Redis
-      <code class="inline">SETEX</code> — the migration is method-for-method.</li>
-      <li>Batch results move from a TEXT blob to the <code class="inline">batch_job_items</code> table (already in
-      the schema) or object storage, enabling per-item queries and streaming reads.</li>
+      <li>Repo viết tay vs ORM: SQL thô giữ bản demo minh bạch và nhẹ dependency; SQLAlchemy Core là điểm ngọt ở
+      quy mô team (có kiểu, kết hợp được, vẫn tường minh).</li>
+      <li>Cú upsert-kèm-reset-timestamp trong <code class="inline">CacheRepository.set()</code> ánh xạ 1:1 sang
+      Redis <code class="inline">SETEX</code> — cuộc migration là từng-method-một.</li>
+      <li>Kết quả batch chuyển từ blob TEXT sang bảng <code class="inline">batch_job_items</code> (đã có sẵn
+      trong schema) hoặc object storage, mở ra truy vấn theo từng item và đọc streaming.</li>
     </ul>
   </div>
 
   <div class="callout talk">
-    <div class="title">Interview talking points</div>
+    <div class="title">Điểm nói chuyện phỏng vấn</div>
     <ul>
-      <li>"Every query is parameterized and every connection is closed in a finally block — boring by design; data
-      layers should be boring."</li>
-      <li>"Lazy TTL on read plus an explicit sweeper is the same strategy Redis uses — I can explain why that beats a
-      background timer at this scale."</li>
-      <li>"The repository boundary is my database-migration insurance: services have never seen a SQL string."</li>
+      <li>"Mọi truy vấn đều tham số hóa và mọi connection đều được đóng trong khối finally — nhàm chán một cách
+      có chủ đích; tầng dữ liệu nên nhàm chán."</li>
+      <li>"TTL lười lúc đọc cộng một bộ quét tường minh là đúng chiến lược mà Redis dùng — tôi giải thích được
+      tại sao nó thắng một bộ hẹn giờ chạy nền ở quy mô này."</li>
+      <li>"Ranh giới repository là bảo hiểm migration database của tôi: các service chưa bao giờ nhìn thấy một
+      chuỗi SQL."</li>
     </ul>
   </div>
 
-  <p class="backtop"><a href="#top">↑ Back to top</a></p>
+  <p class="backtop"><a href="#top">↑ Về đầu trang</a></p>
 </section>
 
 </main>
