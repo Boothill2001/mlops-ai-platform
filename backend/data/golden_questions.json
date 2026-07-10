@@ -1,0 +1,156 @@
+[
+  {
+    "question": "What is the overall supplier defect rate trend?",
+    "expected_answer_keywords": [
+      "decreased",
+      "5.2%",
+      "4.1%",
+      "Q4 2024"
+    ],
+    "expected_doc_ids": [
+      "DOC-001"
+    ],
+    "required_role": "viewer"
+  },
+  {
+    "question": "Which suppliers are not ISO 9001 certified?",
+    "expected_answer_keywords": [
+      "Dhaka Garment",
+      "Chittagong Jute",
+      "Da Nang Ceramic"
+    ],
+    "expected_doc_ids": [
+      "DOC-002"
+    ],
+    "required_role": "analyst"
+  },
+  {
+    "question": "What is the steel price forecast for 2025?",
+    "expected_answer_keywords": [
+      "increase",
+      "8-12%",
+      "global demand"
+    ],
+    "expected_doc_ids": [
+      "DOC-003"
+    ],
+    "required_role": "manager"
+  },
+  {
+    "question": "How is supplier risk score calculated?",
+    "expected_answer_keywords": [
+      "financial stability",
+      "delivery reliability",
+      "quality metrics",
+      "geopolitical"
+    ],
+    "expected_doc_ids": [
+      "DOC-004"
+    ],
+    "required_role": "viewer"
+  },
+  {
+    "question": "What are the contract negotiation targets for Shanghai Electronics?",
+    "expected_answer_keywords": [
+      "8% cost reduction",
+      "volume commitment"
+    ],
+    "expected_doc_ids": [
+      "DOC-005"
+    ],
+    "required_role": "admin"
+  },
+  {
+    "question": "What is the on-time delivery rate?",
+    "expected_answer_keywords": [
+      "87.3%",
+      "target 95%"
+    ],
+    "expected_doc_ids": [
+      "DOC-006"
+    ],
+    "required_role": "viewer"
+  },
+  {
+    "question": "What are the supplier onboarding phases?",
+    "expected_answer_keywords": [
+      "document collection",
+      "factory audit",
+      "sample order",
+      "contract negotiation"
+    ],
+    "expected_doc_ids": [
+      "DOC-007"
+    ],
+    "required_role": "analyst"
+  },
+  {
+    "question": "What is the total supply chain carbon footprint?",
+    "expected_answer_keywords": [
+      "12,450 tonnes",
+      "CO2e",
+      "FY2024"
+    ],
+    "expected_doc_ids": [
+      "DOC-008"
+    ],
+    "required_role": "viewer"
+  },
+  {
+    "question": "Which suppliers have financial health concerns?",
+    "expected_answer_keywords": [
+      "Dhaka Garment",
+      "liquidity",
+      "Chennai Forge",
+      "declining revenue"
+    ],
+    "expected_doc_ids": [
+      "DOC-009"
+    ],
+    "required_role": "manager"
+  },
+  {
+    "question": "Which are the highest-risk suppliers?",
+    "expected_answer_keywords": [
+      "Dhaka Garment",
+      "Chittagong Jute",
+      "Chennai Forge",
+      "0.82",
+      "0.78",
+      "0.71"
+    ],
+    "expected_doc_ids": [
+      "DOC-004"
+    ],
+    "required_role": "viewer"
+  },
+  {
+    "question": "What are the best performing shipping routes?",
+    "expected_answer_keywords": [
+      "DE-VN",
+      "Hamburg",
+      "98%",
+      "JP-VN",
+      "Yokohama",
+      "96%"
+    ],
+    "expected_doc_ids": [
+      "DOC-006"
+    ],
+    "required_role": "viewer"
+  },
+  {
+    "question": "What approval levels are required for large supplier orders?",
+    "expected_answer_keywords": [
+      "procurement manager",
+      "$100K",
+      "VP",
+      "$500K",
+      "C-level"
+    ],
+    "expected_doc_ids": [
+      "DOC-007"
+    ],
+    "required_role": "analyst"
+  }
+]

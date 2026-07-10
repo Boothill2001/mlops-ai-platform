@@ -1,0 +1,1900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CICAAD MLOps AI Platform — Engineering Tutorial</title>
+<style>
+  :root {
+    --sidebar-bg: #0f172a;
+    --sidebar-text: #94a3b8;
+    --sidebar-active: #38bdf8;
+    --body-bg: #f8fafc;
+    --card-bg: #ffffff;
+    --ink: #1e293b;
+    --muted: #64748b;
+    --accent: #0284c7;
+    --code-bg: #0f172a;
+    --code-text: #e2e8f0;
+    --border: #e2e8f0;
+    --why-bg: #eff6ff;    --why-border: #3b82f6;
+    --warn-bg: #fefce8;   --warn-border: #eab308;
+    --talk-bg: #f0fdf4;   --talk-border: #22c55e;
+    --trade-bg: #faf5ff;  --trade-border: #a855f7;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+  body {
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    background: var(--body-bg);
+    color: var(--ink);
+    line-height: 1.7;
+    font-size: 16px;
+  }
+
+  /* ---------- layout ---------- */
+  .layout { display: flex; min-height: 100vh; }
+  nav.sidebar {
+    width: 290px;
+    background: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    overflow-y: auto;
+    padding: 28px 0 40px;
+    scrollbar-width: thin;
+    scrollbar-color: #334155 transparent;
+  }
+  nav.sidebar .brand {
+    padding: 0 24px 20px;
+    border-bottom: 1px solid #1e293b;
+    margin-bottom: 16px;
+  }
+  nav.sidebar .brand h1 {
+    color: #f1f5f9;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    line-height: 1.35;
+  }
+  nav.sidebar .brand .sub {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 6px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+  }
+  nav.sidebar .group {
+    padding: 14px 24px 4px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    color: #475569;
+  }
+  nav.sidebar a {
+    display: block;
+    color: var(--sidebar-text);
+    text-decoration: none;
+    font-size: 13.5px;
+    padding: 6px 24px 6px 24px;
+    border-left: 3px solid transparent;
+    transition: color .15s, border-color .15s, background .15s;
+  }
+  nav.sidebar a:hover {
+    color: #e2e8f0;
+    border-left-color: var(--sidebar-active);
+    background: rgba(56,189,248,0.06);
+  }
+  nav.sidebar a code {
+    font-family: "Cascadia Code", Consolas, monospace;
+    font-size: 12.5px;
+  }
+  main {
+    margin-left: 290px;
+    flex: 1;
+    padding: 48px 56px 120px;
+    max-width: 1020px;
+  }
+  @media (max-width: 900px) {
+    nav.sidebar { display: none; }
+    main { margin-left: 0; padding: 24px 20px 80px; }
+  }
+
+  /* ---------- typography ---------- */
+  main h1 {
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+  main .lede {
+    font-size: 18px;
+    color: var(--muted);
+    margin-bottom: 36px;
+    max-width: 760px;
+  }
+  section { margin-bottom: 64px; }
+  section h2 {
+    font-size: 26px;
+    font-weight: 750;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 20px;
+    letter-spacing: -0.3px;
+  }
+  section h2 code, section h3 code {
+    font-family: "Cascadia Code", Consolas, monospace;
+    background: #e0f2fe;
+    color: #0369a1;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.85em;
+  }
+  section h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 26px 0 10px;
+    color: #0f172a;
+  }
+  p { margin-bottom: 14px; max-width: 820px; }
+  ul, ol { margin: 0 0 16px 24px; max-width: 800px; }
+  li { margin-bottom: 7px; }
+  strong { color: #0f172a; }
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    margin-bottom: 10px;
+  }
+  .tag.svc  { background: #e0f2fe; color: #0369a1; }
+  .tag.ml   { background: #fef3c7; color: #92400e; }
+  .tag.stor { background: #ede9fe; color: #6d28d9; }
+
+  /* ---------- code ---------- */
+  pre {
+    background: var(--code-bg);
+    color: var(--code-text);
+    border-radius: 10px;
+    padding: 18px 22px;
+    overflow-x: auto;
+    font-size: 13.5px;
+    line-height: 1.6;
+    margin: 14px 0 20px;
+    font-family: "Cascadia Code", Consolas, "Courier New", monospace;
+    border: 1px solid #1e293b;
+  }
+  pre .c  { color: #64748b; }   /* comment */
+  pre .k  { color: #f472b6; }   /* keyword */
+  pre .s  { color: #a5d6a7; }   /* string */
+  pre .f  { color: #7dd3fc; }   /* function */
+  pre .n  { color: #fbbf24; }   /* number */
+  code.inline {
+    font-family: "Cascadia Code", Consolas, monospace;
+    background: #eef2f7;
+    color: #b91c1c;
+    padding: 1.5px 6px;
+    border-radius: 5px;
+    font-size: 0.87em;
+  }
+
+  /* ---------- callouts ---------- */
+  .callout {
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin: 16px 0 20px;
+    border-left: 5px solid;
+    max-width: 830px;
+  }
+  .callout .title {
+    font-weight: 750;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .callout p:last-child, .callout ul:last-child { margin-bottom: 0; }
+  .callout.why  { background: var(--why-bg);  border-color: var(--why-border); }
+  .callout.why .title  { color: #1d4ed8; }
+  .callout.warn { background: var(--warn-bg); border-color: var(--warn-border); }
+  .callout.warn .title { color: #a16207; }
+  .callout.talk { background: var(--talk-bg); border-color: var(--talk-border); }
+  .callout.talk .title { color: #15803d; }
+  .callout.trade { background: var(--trade-bg); border-color: var(--trade-border); }
+  .callout.trade .title { color: #7e22ce; }
+
+  /* ---------- tables ---------- */
+  .tbl-wrap { overflow-x: auto; margin: 14px 0 20px; max-width: 830px; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 14px;
+    background: var(--card-bg);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(15,23,42,0.07);
+  }
+  th {
+    background: #0f172a;
+    color: #e2e8f0;
+    text-align: left;
+    padding: 10px 14px;
+    font-weight: 650;
+    font-size: 13px;
+    letter-spacing: 0.4px;
+  }
+  td {
+    padding: 10px 14px;
+    border-top: 1px solid var(--border);
+    vertical-align: top;
+  }
+  td code, th code {
+    font-family: "Cascadia Code", Consolas, monospace;
+    font-size: 12.5px;
+    color: #0369a1;
+  }
+  tr:nth-child(even) td { background: #f8fafc; }
+
+  /* ---------- diagram ---------- */
+  .diagram-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 18px 0 24px;
+    overflow-x: auto;
+    box-shadow: 0 1px 4px rgba(15,23,42,0.06);
+  }
+  .diagram-card svg { display: block; margin: 0 auto; min-width: 700px; }
+
+  hr.sep { border: 0; border-top: 1px dashed #cbd5e1; margin: 40px 0; }
+  .backtop { font-size: 13px; }
+  .backtop a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- ================= SIDEBAR ================= -->
+<nav class="sidebar">
+  <div class="brand">
+    <h1>CICAAD MLOps<br>AI Platform</h1>
+    <div class="sub">Engineering Tutorial</div>
+  </div>
+
+  <div class="group">Overview</div>
+  <a href="#architecture">Architecture Overview</a>
+  <a href="#design-decisions">Key Design Decisions</a>
+
+  <div class="group">Inference Path</div>
+  <a href="#inference-service"><code>inference_service.py</code></a>
+  <a href="#cache-service"><code>cache_service.py</code></a>
+  <a href="#history-service"><code>history_service.py</code></a>
+
+  <div class="group">RAG Pipeline</div>
+  <a href="#embedding-service"><code>embedding_service.py</code></a>
+  <a href="#permission-service"><code>permission_service.py</code></a>
+  <a href="#retrieval-service"><code>retrieval_service.py</code></a>
+  <a href="#rerank-service"><code>rerank_service.py</code></a>
+  <a href="#rag-service"><code>rag_service.py</code></a>
+
+  <div class="group">Operations</div>
+  <a href="#batch-service"><code>batch_service.py</code></a>
+  <a href="#monitoring-service"><code>monitoring_service.py</code></a>
+  <a href="#drift-service"><code>drift_service.py</code></a>
+  <a href="#evaluation-service"><code>evaluation_service.py</code></a>
+
+  <div class="group">ML Layer</div>
+  <a href="#supplier-risk-model"><code>supplier_risk_model.py</code></a>
+  <a href="#feature-builder"><code>feature_builder.py</code></a>
+  <a href="#model-registry"><code>model_registry.py</code></a>
+
+  <div class="group">Storage Layer</div>
+  <a href="#vector-store"><code>vector_store.py</code></a>
+  <a href="#database"><code>database.py</code></a>
+  <a href="#repositories"><code>repositories.py</code></a>
+</nav>
+
+<!-- ================= MAIN ================= -->
+<main id="top">
+
+<h1>CICAAD MLOps AI Platform</h1>
+<p class="lede">
+A deep, file-by-file tour of the backend: a supplier-risk inference API with caching,
+a permission-aware RAG pipeline, batch scoring, drift detection, and a golden-set
+evaluation harness — built with FastAPI, scikit-learn, NumPy, and SQLite.
+Each section explains <strong>why the file exists</strong>, <strong>what its key functions do</strong>,
+<strong>what can go wrong</strong>, <strong>how the design would change at scale</strong>, and
+<strong>how to talk about it in a senior MLOps interview</strong>.
+</p>
+
+<!-- ============================================================ -->
+<section id="architecture">
+  <h2>Architecture Overview</h2>
+  <p>
+    The platform is a single FastAPI application (<code class="inline">app/main.py</code>) exposing six routers under
+    <code class="inline">/api/v1</code>: inference, RAG, batch, evaluation, monitoring — and this tutorial.
+    Every request passes through a middleware that injects a 12-hex-char <strong>request ID</strong>
+    into a <code class="inline">ContextVar</code> so log lines and responses (<code class="inline">X-Request-ID</code> header)
+    are correlated. The app lifespan hook calls <code class="inline">init_db()</code> and <code class="inline">seed_all()</code>
+    so the SQLite schema and demo documents exist before the first request.
+  </p>
+
+  <div class="diagram-card">
+  <svg viewBox="0 0 900 560" width="900" height="560" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif">
+    <defs>
+      <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/>
+      </marker>
+    </defs>
+    <!-- Client -->
+    <rect x="370" y="10" width="160" height="44" rx="8" fill="#0f172a"/>
+    <text x="450" y="37" fill="#e2e8f0" font-size="15" text-anchor="middle" font-weight="600">Client</text>
+    <line x1="450" y1="54" x2="450" y2="86" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+
+    <!-- FastAPI -->
+    <rect x="250" y="88" width="400" height="52" rx="8" fill="#0284c7"/>
+    <text x="450" y="112" fill="#fff" font-size="14" text-anchor="middle" font-weight="600">FastAPI · request-ID middleware · CORS</text>
+    <text x="450" y="130" fill="#bae6fd" font-size="12" text-anchor="middle">routes_inference · routes_rag · routes_batch · routes_evaluation · routes_monitoring</text>
+
+    <!-- three flows -->
+    <line x1="330" y1="140" x2="180" y2="180" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+    <line x1="450" y1="140" x2="450" y2="180" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+    <line x1="570" y1="140" x2="730" y2="180" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+
+    <!-- Inference column -->
+    <rect x="60" y="182" width="240" height="46" rx="8" fill="#e0f2fe" stroke="#0284c7"/>
+    <text x="180" y="203" font-size="13.5" text-anchor="middle" font-weight="600" fill="#0c4a6e">InferenceService.predict()</text>
+    <text x="180" y="220" font-size="11.5" text-anchor="middle" fill="#0369a1">cache check → features → model → log</text>
+    <line x1="180" y1="228" x2="180" y2="252" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+
+    <rect x="60" y="254" width="240" height="46" rx="8" fill="#fef3c7" stroke="#d97706"/>
+    <text x="180" y="275" font-size="13.5" text-anchor="middle" font-weight="600" fill="#78350f">feature_builder → ModelRegistry</text>
+    <text x="180" y="292" font-size="11.5" text-anchor="middle" fill="#92400e">RuleBasedModel / TrainedModel (fallback)</text>
+
+    <!-- RAG column -->
+    <rect x="330" y="182" width="240" height="46" rx="8" fill="#e0f2fe" stroke="#0284c7"/>
+    <text x="450" y="203" font-size="13.5" text-anchor="middle" font-weight="600" fill="#0c4a6e">RagService.query()</text>
+    <text x="450" y="220" font-size="11.5" text-anchor="middle" fill="#0369a1">role check → cache → retrieve → rerank</text>
+    <line x1="450" y1="228" x2="450" y2="252" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+
+    <rect x="330" y="254" width="240" height="46" rx="8" fill="#e0f2fe" stroke="#0284c7"/>
+    <text x="450" y="275" font-size="13.5" text-anchor="middle" font-weight="600" fill="#0c4a6e">RetrievalService</text>
+    <text x="450" y="292" font-size="11.5" text-anchor="middle" fill="#0369a1">embed query · permission PRE-filter</text>
+    <line x1="450" y1="300" x2="450" y2="324" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+
+    <rect x="330" y="326" width="240" height="46" rx="8" fill="#ede9fe" stroke="#7c3aed"/>
+    <text x="450" y="347" font-size="13.5" text-anchor="middle" font-weight="600" fill="#4c1d95">VectorStore (in-memory NumPy)</text>
+    <text x="450" y="364" font-size="11.5" text-anchor="middle" fill="#6d28d9">cosine similarity over filtered candidates</text>
+    <line x1="450" y1="372" x2="450" y2="396" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+
+    <rect x="330" y="398" width="240" height="46" rx="8" fill="#e0f2fe" stroke="#0284c7"/>
+    <text x="450" y="419" font-size="13.5" text-anchor="middle" font-weight="600" fill="#0c4a6e">RerankService → answer + citations</text>
+    <text x="450" y="436" font-size="11.5" text-anchor="middle" fill="#0369a1">0.6·vector + 0.4·keyword overlap</text>
+
+    <!-- Ops column -->
+    <rect x="610" y="182" width="240" height="46" rx="8" fill="#e0f2fe" stroke="#0284c7"/>
+    <text x="730" y="203" font-size="13.5" text-anchor="middle" font-weight="600" fill="#0c4a6e">Batch / Monitoring / Evaluation</text>
+    <text x="730" y="220" font-size="11.5" text-anchor="middle" fill="#0369a1">background thread · p50/p95/p99 · golden set</text>
+    <line x1="730" y1="228" x2="730" y2="252" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+
+    <rect x="610" y="254" width="240" height="46" rx="8" fill="#e0f2fe" stroke="#0284c7"/>
+    <text x="730" y="275" font-size="13.5" text-anchor="middle" font-weight="600" fill="#0c4a6e">DriftService</text>
+    <text x="730" y="292" font-size="11.5" text-anchor="middle" fill="#0369a1">intent distribution · Jensen–Shannon divergence</text>
+
+    <!-- storage base -->
+    <line x1="180" y1="300" x2="180" y2="480" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+    <line x1="450" y1="444" x2="450" y2="480" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+    <line x1="730" y1="300" x2="730" y2="480" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+
+    <rect x="60" y="482" width="790" height="58" rx="8" fill="#0f172a"/>
+    <text x="455" y="507" fill="#e2e8f0" font-size="14" text-anchor="middle" font-weight="600">SQLite (WAL) — request_history · batch_jobs · cache_entries</text>
+    <text x="455" y="527" fill="#94a3b8" font-size="12" text-anchor="middle">HistoryRepository · BatchJobRepository · CacheRepository — connection-per-operation</text>
+  </svg>
+  </div>
+
+  <h3>The three request flows</h3>
+  <ul>
+    <li><strong>Real-time inference</strong> — <code class="inline">POST /api/v1/inference/supplier-risk</code>:
+      cache lookup → feature engineering → production model from the registry → prediction + explanation →
+      write-through cache → history log. Every response carries <code class="inline">latency_ms</code>,
+      <code class="inline">cache_hit</code>, and <code class="inline">model_version</code>.</li>
+    <li><strong>RAG query</strong> — role validation → cache → embed query → <em>permission pre-filtered</em>
+      cosine search (over-fetch <code class="inline">top_k * 2</code>) → hybrid rerank → extractive answer with citations.</li>
+    <li><strong>Operational plane</strong> — batch CSV scoring in a background thread with per-record
+      retry; monitoring computes latency percentiles, error rate, cost estimates, and drift from the same
+      <code class="inline">request_history</code> table every service writes into; evaluation replays a golden
+      question set through the live RAG pipeline.</li>
+  </ul>
+
+  <div class="callout why">
+    <div class="title">Why this layering</div>
+    <p>Routes are thin (validate → delegate), services own business logic, repositories own SQL, and the ML
+    layer is behind an abstract interface. Each layer is swappable: SQLite → Postgres, in-memory vectors → pgvector,
+    rule-based model → trained model — without touching the API surface. That separation is the whole point of the
+    exercise: the architecture is production-shaped even where individual components are deliberately simple.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="design-decisions">
+  <h2>Key Design Decisions</h2>
+
+  <h3>1. Pre-filtering RAG security (permission filter before ranking)</h3>
+  <p>
+    Document-level permissions are enforced <strong>before</strong> similarity ranking:
+    <code class="inline">VectorStore.search()</code> accepts a <code class="inline">filter_fn</code> and skips
+    unauthorized documents before computing cosine similarity. The naive alternative — retrieve top-k, then drop
+    forbidden results — has two failure modes: (a) a user may receive <em>fewer than k</em> results, and the count
+    delta leaks the <em>existence</em> of restricted documents; (b) worse, a rerank or answer-generation step
+    downstream may have already seen restricted text. Pre-filtering makes unauthorized documents invisible to the
+    entire pipeline. The docstring in <code class="inline">permission_service.get_permission_filter()</code> states
+    this explicitly — it is a deliberate security invariant, not an implementation accident.
+  </p>
+
+  <h3>2. Rule-based model with trained-model fallback path</h3>
+  <p>
+    <code class="inline">RuleBasedModel</code> is a transparent weighted linear scorer that ships on day one and is
+    perfectly explainable. <code class="inline">TrainedModel</code> wraps a pickled sklearn classifier but holds a
+    <code class="inline">RuleBasedModel</code> as fallback: if the artifact is missing or fails to load, predictions
+    degrade gracefully instead of 500ing. The registry serves whichever version is staged
+    <code class="inline">"production"</code>. This encodes a real MLOps principle: <em>the serving contract is stable;
+    the model behind it is an implementation detail with a safety net.</em>
+  </p>
+
+  <h3>3. Composite cache keys (namespace + sorted params + SHA-256)</h3>
+  <p>
+    <code class="inline">CacheService._make_key()</code> builds
+    <code class="inline">sha256(json.dumps({"ns": namespace, **sorted(params)}))</code>.
+    Sorting the params dict makes the key <strong>order-insensitive</strong> — the same logical request always maps
+    to the same key regardless of field order. The namespace prevents cross-feature collisions ("inference" vs "rag"),
+    and hashing yields fixed-length keys safe for any backing store. RAG cache keys include the <strong>role</strong>,
+    so a viewer can never be served an answer computed for an admin — the cache respects the permission boundary.
+  </p>
+
+  <h3>4. JSD drift detection on intent distributions</h3>
+  <p>
+    <code class="inline">DriftService</code> classifies recent traffic into intents (risk_assessment, compliance,
+    pricing, quality, general) and compares that distribution against a frozen baseline using
+    <strong>Jensen–Shannon divergence</strong>. JSD was chosen over raw KL divergence because it is
+    <em>symmetric</em> and <em>bounded</em> (0 → ln 2), which makes fixed thresholds
+    (<code class="inline">warning=0.20</code>, <code class="inline">alert=0.35</code>) meaningful; KL is unbounded and
+    blows up on zero-probability bins. This is <em>input/usage drift</em> — the earliest, cheapest signal that the
+    world your model sees no longer matches the world it was tuned for.
+  </p>
+
+  <h3>5. Mock embeddings via HashingVectorizer behind a Protocol</h3>
+  <p>
+    <code class="inline">EmbeddingService</code> programs against an <code class="inline">EmbeddingBackend</code>
+    Protocol with two implementations: <code class="inline">MockEmbedding</code>
+    (sklearn <code class="inline">HashingVectorizer</code>, 256-dim, L2-normalized — deterministic, zero model download,
+    instant tests) and <code class="inline">SentenceTransformerEmbedding</code> (all-MiniLM-L6-v2, lazily imported).
+    A config flag (<code class="inline">embedding_provider</code>) swaps them. The hashing trick gives real
+    lexical-overlap similarity that exercises the entire retrieval pipeline honestly, while keeping CI hermetic.
+  </p>
+
+  <div class="callout talk">
+    <div class="title">Interview framing for the whole system</div>
+    <p>"I built the platform contract-first: every architectural seam — model, embeddings, cache, storage — is an
+    interface with a cheap local implementation and a documented production swap. That let me demonstrate the
+    <em>operational</em> parts of MLOps (caching, drift, evaluation, observability, permission-aware retrieval)
+    end-to-end without cloud dependencies, and each mock names its real replacement: Redis, pgvector,
+    sentence-transformers, MLflow."</p>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ============================================================ -->
+<section id="inference-service">
+  <span class="tag svc">Service</span>
+  <h2><code>services/inference_service.py</code> — Real-time prediction orchestrator</h2>
+
+  <h3>Purpose</h3>
+  <p>
+    The single entry point for real-time supplier-risk predictions. It owns the <em>orchestration</em> —
+    cache → features → model → explanation → cache write → history log — but none of the ML math, feature logic,
+    or storage details. Routes call it; it calls everything else.
+  </p>
+
+  <h3>Key functions</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Member</th><th>What it does</th></tr>
+    <tr><td><code>InferenceService.predict(request)</code></td>
+        <td>Starts a trace (request ID + timer). Checks the cache using the full request payload as the key.
+        On hit: returns cached body with <code>cache_hit=True</code> and a <em>fresh</em> request_id/latency.
+        On miss: builds features, fetches the production <code>ModelVersion</code> from the registry
+        (raises <code>RuntimeError</code> if none), calls <code>predict()</code> and <code>explain()</code>,
+        assembles a <code>SupplierRiskResponse</code>, writes through to cache, and logs to history.</td></tr>
+    <tr><td><code>get_inference_service()</code></td>
+        <td>Module-level lazy singleton wiring <code>CacheService</code>, <code>HistoryService</code>, and a
+        <code>ModelRegistry</code>. Constructor injection keeps the class unit-testable with fakes.</td></tr>
+  </table></div>
+
+<pre><span class="c"># The core orchestration, condensed:</span>
+cached = self._cache.get(<span class="s">"inference"</span>, **request.model_dump())
+<span class="k">if</span> cached: <span class="k">return</span> SupplierRiskResponse(**cached, cache_hit=<span class="k">True</span>, ...)
+
+features = build_features(request.model_dump())
+model_version = self._registry.get_production()   <span class="c"># RuntimeError if None</span>
+prediction = model_version.model_instance.predict(features)
+explanation = model_version.model_instance.explain(features)
+<span class="c"># ... respond, cache.set(...), history.log_request(...)</span></pre>
+
+  <div class="callout why">
+    <div class="title">Why it exists</div>
+    <p>Without an orchestrator, cache logic and model dispatch leak into route handlers and get copy-pasted into the
+    batch path. Centralizing means <em>one</em> place defines the serving contract: every prediction is cached,
+    versioned, explained, and logged. Note that cached responses still get a fresh <code class="inline">request_id</code>
+    and real measured latency — observability metadata is never cached, only the model output is.</p>
+  </div>
+
+  <div class="callout warn">
+    <div class="title">What can go wrong</div>
+    <ul>
+      <li><strong>Cache hits are not logged to history.</strong> <code class="inline">log_request()</code> is only called
+      on the miss path, so <code class="inline">cache_hit_rate</code> computed from history undercounts hits.
+      Debugging tip: if monitoring shows a near-zero hit rate but responses return <code class="inline">cache_hit=true</code>,
+      this is why.</li>
+      <li><strong>Stale predictions after model promotion.</strong> The cache key does not include the model version;
+      promoting a new model keeps serving old cached scores until TTL (300 s) expires. Fix: add
+      <code class="inline">model_version</code> to the cache params or invalidate the namespace on promotion.</li>
+      <li><strong>Singleton state in tests.</strong> The module-level <code class="inline">_instance</code> persists
+      across tests; reset it (or inject fresh dependencies) in fixtures or tests will share cache state.</li>
+      <li><strong>No production model → 500.</strong> <code class="inline">RuntimeError("No production model registered")</code>
+      surfaces as an unhandled 500. Reasonable fail-fast for a demo; production would map it to a 503 with an alert.</li>
+    </ul>
+  </div>
+
+  <div class="callout trade">
+    <div class="title">Production tradeoffs</div>
+    <ul>
+      <li><code class="inline">predict()</code> is <code class="inline">async</code> but every call inside is synchronous
+      (SQLite, sklearn). Fine at demo scale; at real scale, blocking calls move to a thread pool
+      (<code class="inline">run_in_executor</code>) or the model moves behind a dedicated serving layer
+      (Triton, Ray Serve, KServe).</li>
+      <li>History logging is a synchronous DB write on the request path. At scale it becomes fire-and-forget:
+      a queue/async writer, or events emitted to Kafka and aggregated downstream.</li>
+      <li>Shadow/canary evaluation would hook here: score with both production and canary models, serve production,
+      log both.</li>
+    </ul>
+  </div>
+
+  <div class="callout talk">
+    <div class="title">Interview talking points</div>
+    <ul>
+      <li>"Cache-aside with write-through: read the cache first, compute on miss, populate on the way out. The key is
+      the full request payload, so any input change is automatically a different key."</li>
+      <li>"Every response carries model_version — that's prediction lineage. When a customer disputes a score, I can
+      tell exactly which model produced it."</li>
+      <li>Point out the stale-after-promotion caveat yourself — knowing your own cache-invalidation gap is a stronger
+      signal than pretending the design is perfect.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="cache-service">
+  <span class="tag svc">Service</span>
+  <h2><code>services/cache_service.py</code> — Two-tier LRU + SQLite cache</h2>
+
+  <h3>Purpose</h3>
+  <p>
+    A namespaced key-value cache with two tiers: an in-process <code class="inline">OrderedDict</code> LRU
+    (fast path, bounded at <code class="inline">cache_max_size=1000</code>) backed by a SQLite
+    <code class="inline">cache_entries</code> table (survives restarts, enforces TTL). It mimics the
+    local-cache-in-front-of-Redis pattern you would deploy in production.
+  </p>
+
+  <h3>Key functions</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Member</th><th>What it does</th></tr>
+    <tr><td><code>_make_key(namespace, **params)</code></td>
+        <td>Canonical key: JSON of <code>{"ns": ns, **sorted(params)}</code> → SHA-256 hex. Sorted params make the
+        key order-insensitive; <code>default=str</code> tolerates non-JSON types; the namespace isolates features.</td></tr>
+    <tr><td><code>get(namespace, **params)</code></td>
+        <td>Memory first (<code>move_to_end</code> marks recency). On memory miss, reads SQLite; a hit is
+        <em>promoted</em> into memory (read-through) and eviction runs.</td></tr>
+    <tr><td><code>set(namespace, value, **params)</code></td>
+        <td>Writes both tiers: memory (then LRU evict) and SQLite with TTL — write-through, so a restart repopulates
+        from disk.</td></tr>
+    <tr><td><code>invalidate(...)</code> / <code>_evict()</code></td>
+        <td>Removes one key from both tiers / pops the least-recently-used entries (<code>popitem(last=False)</code>)
+        while over capacity.</td></tr>
+  </table></div>
+
+  <div class="callout why">
+    <div class="title">Why two tiers</div>
+    <p>Memory gives microsecond hits with zero I/O; SQLite gives durability and TTL. The promotion-on-read pattern means
+    hot keys migrate to the fast tier automatically. It is the exact shape of "process-local cache + shared Redis" —
+    only the second tier's technology changes in production.</p>
+  </div>
+
+  <div class="callout warn">
+    <div class="title">What can go wrong</div>
+    <ul>
+      <li><strong>The memory tier ignores TTL.</strong> Only <code class="inline">CacheRepository.get()</code> checks
+      expiry. An entry that stays hot in memory can outlive its TTL indefinitely. Debugging tip: if you see stale data
+      past TTL, check whether the key ever left the memory tier.</li>
+      <li><strong>Mutable value aliasing.</strong> <code class="inline">get()</code> returns the dict stored in memory
+      by reference — a caller that mutates it corrupts the cache. (This is why <code class="inline">RagService</code>
+      caches <code class="inline">response.copy()</code> and why the cached RAG dict gets mutated fields patched on
+      each hit — the copy on write protects the shared entry.)</li>
+      <li><strong>Multi-process incoherence.</strong> Two uvicorn workers each have their own memory tier; an
+      <code class="inline">invalidate()</code> in worker A leaves a stale entry in worker B until its LRU evicts it.</li>
+      <li><strong>Theoretical hash collisions</strong> are a non-issue with SHA-256, but forgetting the namespace when
+      calling <code class="inline">get/set</code> silently reads the wrong keyspace — always grep for the namespace
+      constant when debugging misses.</li>
+    </ul>
+  </div>
+
+  <div class="callout trade">
+    <div class="title">Production tradeoffs</div>
+    <ul>
+      <li>Swap SQLite tier for <strong>Redis</strong>: native TTL (<code class="inline">SETEX</code>), atomic ops,
+      shared across replicas, pub/sub for invalidation broadcasts to local tiers.</li>
+      <li>Add metrics: hit/miss counters per namespace, eviction rate, memory-tier vs persistent-tier hit split.</li>
+      <li>Consider <strong>stampede protection</strong> (single-flight locking or probabilistic early expiry) so a hot
+      key expiring doesn't trigger a thundering herd of model calls.</li>
+    </ul>
+  </div>
+
+  <div class="callout talk">
+    <div class="title">Interview talking points</div>
+    <ul>
+      <li>"Cache key design is the interesting part: namespace prevents cross-feature collisions, sorted params make
+      keys canonical, and hashing bounds key size. For RAG I put the user's role in the key so caching can never
+      bypass authorization."</li>
+      <li>"OrderedDict with move_to_end is the textbook O(1) LRU — same data structure functools.lru_cache uses
+      internally."</li>
+      <li>Be ready for: "What's your invalidation story when the model updates?" — answer: version the namespace or
+      include model_version in the key.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="history-service">
+  <span class="tag svc">Service</span>
+  <h2><code>services/history_service.py</code> — Request audit log</h2>
+
+  <h3>Purpose</h3>
+  <p>
+    A thin service over <code class="inline">HistoryRepository</code> that records every served request
+    (request ID, endpoint, latency, status, cache_hit, model version, payload) and answers aggregate questions.
+    It is the platform's <strong>system of record</strong>: monitoring, drift detection, and debugging all read from
+    the rows this service writes.
+  </p>
+
+  <h3>Key functions</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Member</th><th>What it does</th></tr>
+    <tr><td><code>log_request(...)</code></td>
+        <td>Inserts one row into <code>request_history</code>. The payload dict is stored as JSON so drift analysis
+        can later re-classify queries without a schema migration.</td></tr>
+    <tr><td><code>get_history(endpoint, limit)</code></td>
+        <td>Recent rows, optionally filtered by endpoint, newest first.</td></tr>
+    <tr><td><code>get_stats(endpoint)</code></td>
+        <td>Pulls up to 10,000 rows and computes total count, mean latency, and cache-hit rate in Python.</td></tr>
+  </table></div>
+
+  <div class="callout why">
+    <div class="title">Why it exists</div>
+    <p>Prediction logging is the foundation of every downstream MLOps capability: latency SLO tracking, drift
+    detection, incident forensics ("what did we return for request X?"), and eventually retraining data. Making it a
+    service (not inline SQL in each caller) means one schema and one write path.</p>
+  </div>
+
+  <div class="callout warn">
+    <div class="title">What can go wrong</div>
+    <ul>
+      <li><strong>Aggregation in Python, not SQL.</strong> <code class="inline">get_stats</code> loads 10k rows to
+      compute an average that SQLite could do with <code class="inline">AVG()</code>. Fine now; a memory/latency trap
+      once the table grows. The 10k cap also silently truncates stats on busy systems.</li>
+      <li><strong>Status string mismatch:</strong> inference logs <code class="inline">status="ok"</code> while
+      monitoring counts errors as <code class="inline">status != "success"</code> — so every request counts as an
+      error in the error-rate metric. Classic cross-service constant drift; a shared enum fixes it.</li>
+      <li><strong>Payloads may contain sensitive data.</strong> Anything in the request lands in the DB as plaintext
+      JSON; production needs field-level redaction and a retention policy.</li>
+      <li><strong>Synchronous write on the hot path</strong> — a locked or slow DB adds directly to user latency.</li>
+    </ul>
+  </div>
+
+  <div class="callout trade">
+    <div class="title">Production tradeoffs</div>
+    <ul>
+      <li>High-volume systems make this asynchronous: emit an event to Kafka/Kinesis, aggregate into a warehouse
+      (BigQuery/ClickHouse), keep only recent hot data in an OLTP store.</li>
+      <li>Metrics that monitoring reads every few seconds should come from a metrics pipeline
+      (Prometheus counters/histograms), not from re-scanning an audit table.</li>
+      <li>Add partitioning/TTL on the table — audit logs grow monotonically forever otherwise.</li>
+    </ul>
+  </div>
+
+  <div class="callout talk">
+    <div class="title">Interview talking points</div>
+    <ul>
+      <li>"Every prediction is auditable: request ID, model version, inputs, latency. That's the difference between an
+      ML demo and an ML system — you can answer 'why did the model say that, and which model was it?'"</li>
+      <li>"I'd separate the two workloads this table currently serves: audit (append-only, long retention) and
+      metrics (pre-aggregated, short retention). Coupling them is the current design's main debt."</li>
+    </ul>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ============================================================ -->
+<section id="embedding-service">
+  <span class="tag svc">Service · RAG</span>
+  <h2><code>services/embedding_service.py</code> — Pluggable text embeddings</h2>
+
+  <h3>Purpose</h3>
+  <p>
+    Turns text into L2-normalized vectors for similarity search, behind a swappable backend. It also owns the
+    <strong>lazy, thread-safe bootstrap</strong> of the vector store: the first embed call embeds all seeded documents
+    exactly once (double-checked locking) so the store is queryable without an explicit indexing step.
+  </p>
+
+  <h3>Key pieces</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Member</th><th>What it does</th></tr>
+    <tr><td><code>EmbeddingBackend</code> (Protocol)</td>
+        <td>Structural interface: <code>embed(text) → ndarray</code>, <code>embed_batch(texts) → ndarray</code>.
+        No inheritance required — duck typing checked statically.</td></tr>
+    <tr><td><code>MockEmbedding</code></td>
+        <td><code>HashingVectorizer(n_features=256, norm="l2", alternate_sign=False)</code>. Deterministic,
+        stateless (no vocabulary to fit), no model download. Re-normalizes defensively against zero vectors.</td></tr>
+    <tr><td><code>SentenceTransformerEmbedding</code></td>
+        <td>all-MiniLM-L6-v2 with <code>normalize_embeddings=True</code>. Import is inside <code>__init__</code> so
+        the dependency is optional; a clear <code>ImportError</code> message tells you how to install it.</td></tr>
+    <tr><td><code>EmbeddingService._ensure_store_embeddings()</code></td>
+        <td>Double-checked lock: if the store has documents but no embeddings yet, batch-embed all chunk texts and
+        attach the matrix. Runs at most once per process.</td></tr>
+    <tr><td><code>get_embedding_service()</code></td>
+        <td>Thread-safe singleton (lock-guarded), unlike the simpler singletons elsewhere — embeddings can be hit
+        concurrently by RAG and evaluation.</td></tr>
+  </table></div>
+
+  <div class="callout why">
+    <div class="title">Why HashingVectorizer for the mock</div>
+    <p>Random vectors would make retrieval tests meaningless; a real transformer makes CI slow and network-dependent.
+    The hashing trick is the middle path: token counts are hashed into a fixed 256-dim space, so texts that share
+    words genuinely land near each other under cosine similarity. The whole pipeline — search, permission filter,
+    rerank, evaluation metrics — is exercised with <em>real</em> signal, deterministically, in milliseconds.</p>
+  </div>
+
+  <div class="callout warn">
+    <div class="title">What can go wrong</div>
+    <ul>
+      <li><strong>Backend switch invalidates every stored vector.</strong> Mock (256-dim, lexical) and MiniLM (384-dim,
+      semantic) are incompatible spaces; flipping <code class="inline">embedding_provider</code> without re-embedding
+      the store gives shape errors or garbage similarities. Rule: <em>embedding model version is part of the index
+      schema.</em></li>
+      <li><strong>Hash collisions:</strong> at 256 features, unrelated tokens share buckets. Harmless for a demo,
+      but explains occasional odd retrievals; raise <code class="inline">n_features</code> if it bites.</li>
+      <li><strong>No synonym understanding:</strong> the mock is purely lexical — "cost" will not match "pricing".
+      Golden-set evaluation numbers must be interpreted with that in mind.</li>
+      <li><strong>Bootstrap ordering:</strong> <code class="inline">_ensure_store_embeddings</code> only runs from
+      <code class="inline">embed()</code>. Documents added later via <code class="inline">add_documents()</code>
+      without embeddings will never be indexed, because <code class="inline">_initialized</code> is already true.</li>
+    </ul>
+  </div>
+
+  <div class="callout trade">
+    <div class="title">Production tradeoffs</div>
+    <ul>
+      <li>Real deployments use a hosted embedding API or a GPU-served model, with batching, retry/backoff, and an
+      embedding cache (embeddings are pure functions of text — perfect cache candidates).</li>
+      <li>Index migrations become a first-class operation: blue/green indexes, re-embed offline, cut over atomically.</li>
+      <li>Track embedding latency and dimensionality as config, not constants.</li>
+    </ul>
+  </div>
+
+  <div class="callout talk">
+    <div class="title">Interview talking points</div>
+    <ul>
+      <li>"I used a Protocol instead of an ABC — structural typing means any object with embed/embed_batch satisfies
+      the interface, which keeps test doubles trivial."</li>
+      <li>"The mock isn't random — HashingVectorizer gives deterministic lexical similarity, so retrieval tests assert
+      real behavior. And the design forces the right production question: what happens to your index when the
+      embedding model changes?"</li>
+      <li>"Double-checked locking on both the singleton and the store bootstrap — the naive lazy singleton has a race
+      under concurrent first requests."</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="permission-service">
+  <span class="tag svc">Service · RAG</span>
+  <h2><code>services/permission_service.py</code> — Role-based document access</h2>
+
+  <h3>Purpose</h3>
+  <p>
+    Pure, stateless authorization logic for the RAG pipeline. Defines a four-level role hierarchy
+    (<code class="inline">admin=4 &gt; manager=3 &gt; analyst=2 &gt; viewer=1</code>) and produces the filter closure
+    that <code class="inline">VectorStore.search()</code> applies <em>before</em> ranking.
+  </p>
+
+  <h3>Key functions</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Function</th><th>What it does</th></tr>
+    <tr><td><code>can_access(user_role, doc_metadata)</code></td>
+        <td>True if the role is explicitly listed in the doc's <code>allowed_roles</code>, or if the user's numeric
+        level ≥ the <em>minimum</em> level among allowed roles (hierarchical override: a manager can read anything an
+        analyst can).</td></tr>
+    <tr><td><code>get_permission_filter(user_id, user_role)</code></td>
+        <td>Returns a <code>Callable[[dict], bool]</code> closure over the role, passed as
+        <code>filter_fn</code> into vector search. Its docstring documents the pre-retrieval security invariant.</td></tr>
+    <tr><td><code>get_accessible_doc_count(role, documents)</code></td>
+        <td>Counts accessible docs — used by <code>RagService</code> to report
+        <code>permission_filtered_count</code> transparently in responses.</td></tr>
+  </table></div>
+
+  <div class="callout why">
+    <div class="title">Why pre-retrieval filtering (the security invariant)</div>
+    <p>Filtering after ranking leaks information two ways: result-count changes reveal that hidden documents exist,
+    and restricted text may reach the reranker or answer generator before being dropped. Applying the filter before
+    similarity computation means unauthorized content never enters the pipeline at all. This is the RAG-era version of
+    row-level security — and it's the single most common security bug in production RAG systems.</p>
+  </div>
+
+  <div class="callout warn">
+    <div class="title">What can go wrong</div>
+    <ul>
+      <li><strong>Missing metadata fails open-ish:</strong> a doc with no <code class="inline">allowed_roles</code>
+      yields <code class="inline">min(default=0)</code>, so <em>every known role</em> (level ≥ 1) can access it.
+      For sensitive corpora you'd want fail-closed: no metadata → no access.</li>
+      <li><strong>Unknown roles map to level 0</strong> and are denied by the hierarchy — but note
+      <code class="inline">RagService</code> already rejects unknown roles before this layer runs (defense in depth).</li>
+      <li><strong><code class="inline">user_id</code> is accepted but unused</strong> — the API is shaped for per-user
+      ACLs/tenancy but only role is enforced today. Don't claim user-level isolation in a review.</li>
+      <li><strong>Linear-scan cost:</strong> the closure runs per document per query. Invisible at demo size; a real
+      vector DB needs this as an indexed metadata pre-filter, not a Python callback.</li>
+    </ul>
+  </div>
+
+  <div class="callout trade">
+    <div class="title">Production tradeoffs</div>
+    <ul>
+      <li>Real vector DBs (pgvector WHERE clauses, Qdrant/Pinecone metadata filters, OpenSearch DLS) push the filter
+      into the index so filtering stays sublinear.</li>
+      <li>Roles would come from a JWT/OIDC claim validated by middleware, not a request body field — the current
+      design trusts the caller's self-declared role.</li>
+      <li>Add audit logging of denied accesses, and per-tenant namespaces for multi-tenancy.</li>
+    </ul>
+  </div>
+
+  <div class="callout talk">
+    <div class="title">Interview talking points</div>
+    <ul>
+      <li>"Pre-retrieval permission filtering is my go-to RAG security answer: post-filtering leaks document existence
+      through result counts and lets restricted text reach downstream components."</li>
+      <li>"The service is pure functions over dicts — no I/O, no state — so the security-critical logic is trivially
+      unit-testable, which is exactly where you want your test density."</li>
+      <li>"I also surface <code class="inline">permission_filtered_count</code> in responses — users can see that
+      results were withheld without seeing what, which builds trust in the system."</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="retrieval-service">
+  <span class="tag svc">Service · RAG</span>
+  <h2><code>services/retrieval_service.py</code> — Secure semantic retrieval</h2>
+
+  <h3>Purpose</h3>
+  <p>
+    A small but deliberate composition point: it is the <em>only</em> code path that touches the vector store for
+    queries, and it guarantees that every search is (1) embedded with the configured backend and (2) wrapped in the
+    caller's permission filter. Security by construction — you cannot reach the store without going through the filter.
+  </p>
+
+  <h3>Key function</h3>
+<pre><span class="k">def</span> <span class="f">retrieve</span>(self, query, user_id, user_role, top_k=<span class="n">5</span>):
+    query_embedding = get_embedding_service().embed(query)          <span class="c"># also lazily indexes the store</span>
+    permission_filter = get_permission_filter(user_id, user_role)   <span class="c"># closure over role</span>
+    <span class="k">return</span> get_vector_store().search(
+        query_embedding=query_embedding, top_k=top_k, filter_fn=permission_filter)</pre>
+
+  <div class="callout why">
+    <div class="title">Why a dedicated layer for 15 lines</div>
+    <p>If <code class="inline">RagService</code> called the store directly, the permission filter would be an optional
+    argument someone could forget. Funneling all retrieval through one method makes the secure path the only path —
+    the same reason you wrap raw SQL behind repositories. It's also the seam for future retrieval upgrades (hybrid
+    BM25+vector, multi-query expansion, HyDE) without touching RAG orchestration.</p>
+  </div>
+
+  <div class="callout warn">
+    <div class="title">What can go wrong</div>
+    <ul>
+      <li><strong>Empty results are ambiguous:</strong> "no similar docs", "all docs filtered by permissions", and
+      "store not yet indexed" all return <code class="inline">[]</code>. When debugging empty RAG answers, check
+      <code class="inline">store.embeddings is not None</code> first, then the role's accessible-doc count.</li>
+      <li><strong>No score threshold:</strong> top-k always returns k results if any candidates exist, even at cosine
+      similarity ≈ 0. Downstream grounding quality depends on the reranker demoting junk; production should apply a
+      minimum-similarity cutoff.</li>
+      <li><strong>Service-locator wiring</strong> (<code class="inline">get_*()</code> calls inside the method) is
+      convenient but hides dependencies — tests must patch module-level singletons rather than inject fakes.</li>
+    </ul>
+  </div>
+
+  <div class="callout trade">
+    <div class="title">Production tradeoffs</div>
+    <ul>
+      <li>Hybrid retrieval (dense + BM25 with reciprocal-rank fusion) typically beats either alone on enterprise
+      corpora — this class is where it would land.</li>
+      <li>Add retrieval telemetry: per-query candidate counts, similarity score distributions, filter rejection
+      counts. Silent retrieval degradation is the most common cause of "the RAG got worse".</li>
+    </ul>
+  </div>
+
+  <div class="callout talk">
+    <div class="title">Interview talking points</div>
+    <ul>
+      <li>"Retrieval is a single choke point that makes permission filtering non-optional — security by construction
+      rather than by convention."</li>
+      <li>"I over-fetch at the caller (2×top_k) so the reranker has candidates to work with — retrieval recall and
+      final precision are separate dials."</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="rerank-service">
+  <span class="tag svc">Service · RAG</span>
+  <h2><code>services/rerank_service.py</code> — Hybrid second-stage ranking</h2>
+
+  <h3>Purpose</h3>
+  <p>
+    The second stage of a two-stage retrieval funnel. First-stage vector search optimizes recall (fetch 2×top_k
+    candidates cheaply); the reranker optimizes precision by blending the vector score with exact keyword overlap:
+    <code class="inline">combined = 0.6 · vector_score + 0.4 · keyword_score</code>, where keyword_score is the
+    fraction of query words present in the chunk.
+  </p>
+
+  <h3>Key function</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Member</th><th>What it does</th></tr>
+    <tr><td><code>rerank(query, chunks, top_k)</code></td>
+        <td>Tokenizes query and each chunk into lowercase word sets, computes overlap ratio
+        <code>|Q ∩ C| / |Q|</code>, blends with the original score 60/40, sorts descending, truncates to top_k.
+        Guards the divide-by-zero on empty queries.</td></tr>
+  </table></div>
+
+  <div class="callout why">
+    <div class="title">Why hybrid scoring</div>
+    <p>Dense embeddings can rank a vaguely-related chunk above one containing the user's exact term (especially with
+    small embedding models); pure keyword matching misses paraphrases. Blending recovers exact-term precision while
+    keeping semantic recall — a stand-in for the cross-encoder rerankers used in production, with the identical
+    interface (query + candidates in, re-scored top_k out).</p>
+  </div>
+
+  <div class="callout warn">
+    <div class="title">What can go wrong</div>
+    <ul>
+      <li><strong>Naive tokenization:</strong> <code class="inline">split()</code> keeps punctuation
+      ("pricing?" ≠ "pricing"), no stemming, and stop-words ("the", "is") count as matches — inflating keyword scores
+      for chunks that share only filler words. Debugging tip: print both score components when a bad chunk wins.</li>
+      <li><strong>Score scale mixing:</strong> the blend assumes both components live in [0,1]. Cosine scores from the
+      normalized mock embeddings do, but a different first-stage scorer (e.g. inner product, BM25) would silently
+      skew the 60/40 balance.</li>
+      <li><strong>Hardcoded weights:</strong> 0.6/0.4 was picked by intuition, not tuned. The evaluation service is
+      exactly the harness you'd use to tune it — mention that pairing.</li>
+    </ul>
+  </div>
+
+  <div class="callout trade">
+    <div class="title">Production tradeoffs</div>
+    <ul>
+      <li>Replace with a <strong>cross-encoder</strong> (e.g. ms-marco-MiniLM) or a hosted reranker (Cohere Rerank).
+      Cross-encoders attend over (query, chunk) jointly — much more accurate, ~10–50 ms per candidate, which is
+      precisely why you only run them on a small candidate set from stage one.</li>
+      <li>The funnel shape is the durable idea: <em>cheap-and-broad, then expensive-and-narrow</em>. Same pattern as
+      recommender candidate-generation → ranking.</li>
+    </ul>
+  </div>
+
+  <div class="callout talk">
+    <div class="title">Interview talking points</div>
+    <ul>
+      <li>"Two-stage retrieval: bi-encoder for recall, reranker for precision. My reranker is a keyword-overlap
+      hybrid, but the interface is exactly where a cross-encoder drops in."</li>
+      <li>"Retrieval quality changes should be gated by the golden-set evaluation — rerank weights are a tunable, and
+      recall@k / citation accuracy are the objective."</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="rag-service">
+  <span class="tag svc">Service · RAG</span>
+  <h2><code>services/rag_service.py</code> — RAG pipeline orchestrator</h2>
+
+  <h3>Purpose</h3>
+  <p>
+    Orchestrates the full question-answering flow: role validation → cache → retrieval (over-fetched) →
+    rerank → answer synthesis → citations → cache write → history log. Also computes transparency metadata:
+    <code class="inline">permission_filtered_count</code> (how many docs the caller could not see) and
+    <code class="inline">grounded</code> (whether the answer is backed by retrieved text).
+  </p>
+
+  <h3>Key functions</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Member</th><th>What it does</th></tr>
+    <tr><td><code>query(user_id, role, query_text, top_k)</code></td>
+        <td>Rejects unknown roles up front (uniform "Access denied" body, no exception). Checks cache keyed on
+        <code>(role, query)</code>. On miss: retrieves <code>top_k * 2</code> candidates through the permission-aware
+        retriever, computes filtered-count transparency stats, short-circuits with a graceful
+        <code>grounded=False</code> body when nothing is retrievable, else reranks to top_k, generates the answer,
+        builds citations with rounded relevance scores, caches a <em>copy</em> of the response, and logs history.</td></tr>
+    <tr><td><code>_generate_answer(query, chunks)</code></td>
+        <td>Mock extractive generator: takes the first sentence of the top 3 chunks, attributes each with
+        <code>[Source: title]</code>, and appends a grounding note. If <code>llm_provider != "mock"</code> it returns
+        a placeholder — the seam where a real LLM call goes.</td></tr>
+    <tr><td><code>_get_cache_service_safe()</code> / <code>_get_history_service_safe()</code></td>
+        <td>Late, exception-swallowing imports: cache and history are treated as <em>optional</em> dependencies.
+        If either fails to initialize, RAG still answers — graceful degradation of non-critical paths.</td></tr>
+  </table></div>
+
+  <div class="callout why">
+    <div class="title">Why this shape</div>
+    <ul>
+      <li><strong>Role in the cache key:</strong> answers are computed against a role-filtered corpus, so they are
+      only valid <em>for that role</em>. Caching on query alone would leak an admin's answer to a viewer.</li>
+      <li><strong>Over-fetch then rerank:</strong> stage one optimizes recall, stage two precision (see rerank section).</li>
+      <li><strong>Extractive mock answers:</strong> answers quote retrieved sentences verbatim with citations —
+      the mock cannot hallucinate, and it keeps the faithfulness metric in the evaluation honest.</li>
+    </ul>
+  </div>
+
+  <div class="callout warn">
+    <div class="title">What can go wrong</div>
+    <ul>
+      <li><strong>Cache-hit mutation aliasing:</strong> on a hit, the code mutates <code class="inline">cache_result</code>
+      in place (setting <code class="inline">cache_hit/request_id/latency_ms</code>) — and because the memory-tier
+      cache returns the stored dict <em>by reference</em>, those writes persist into the cached entry. It works here
+      because the same fields are overwritten every hit, but adding any conditional mutation would corrupt the cache.
+      The <code class="inline">.copy()</code> on the set path is the mirror-image protection.</li>
+      <li><strong><code class="inline">except (ImportError, Exception)</code></strong> in the safe getters is
+      redundant (Exception subsumes ImportError) and dangerously broad: a genuine cache bug (e.g. a corrupted DB)
+      silently turns caching off with no log line. Debugging tip: when cache_hit is永remotely always false, check
+      whether the safe getter is swallowing an exception.</li>
+      <li><strong>Cache staleness on corpus/permission change:</strong> keys are (role, query); re-indexing documents
+      or editing allowed_roles leaves stale answers until TTL. Production wants an index-version component in the key.</li>
+      <li><strong>Invalid role returns 200</strong> with an "Access denied" body rather than HTTP 403 — clients
+      can't distinguish auth failure by status code.</li>
+    </ul>
+  </div>
+
+  <div class="callout trade">
+    <div class="title">Production tradeoffs</div>
+    <ul>
+      <li>The <code class="inline">_generate_answer</code> seam is where a real LLM (the config already carries
+      DeepSeek settings) slots in — with prompt templating, context-window budgeting, citation-constrained decoding,
+      and streaming responses.</li>
+      <li>Real systems add answer-quality guardrails: groundedness scoring against retrieved chunks, refusal on low
+      retrieval confidence, PII scrubbing of both query and answer.</li>
+      <li>Semantic caching (cache hit on <em>similar</em> queries, not exact strings) multiplies hit rates for
+      natural-language traffic — but must still respect the role dimension.</li>
+    </ul>
+  </div>
+
+  <div class="callout talk">
+    <div class="title">Interview talking points</div>
+    <ul>
+      <li>"The RAG response is <em>observable</em>: grounded flag, citation scores, permission_filtered_count,
+      latency, cache_hit, request_id. When someone asks 'why did the assistant say that', every hop is answerable."</li>
+      <li>"Role-scoped caching is the subtle bit — the cache must be partitioned by every input that affected the
+      answer, and the visible corpus is one of those inputs."</li>
+      <li>"Cache and history are optional dependencies with graceful degradation; retrieval and permissions are not —
+      deciding which failures are survivable is the actual design work."</li>
+    </ul>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ============================================================ -->
+<section id="batch-service">
+  <span class="tag svc">Service · Ops</span>
+  <h2><code>services/batch_service.py</code> — Async CSV batch scoring</h2>
+
+  <h3>Purpose</h3>
+  <p>
+    Scores whole CSV files of suppliers without blocking the API: <code class="inline">start_job()</code> parses and
+    validates the CSV, persists a job row, spawns a daemon thread, and returns a job ID immediately. Clients poll
+    <code class="inline">get_job()</code> for status and progress — the classic <strong>submit / poll</strong>
+    async-job pattern.
+  </p>
+
+  <h3>Key functions</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Member</th><th>What it does</th></tr>
+    <tr><td><code>start_job(data_csv, chunk_size)</code></td>
+        <td>Parses CSV via <code>csv.DictReader</code>, rejects empty files (<code>ValueError</code>), creates the
+        job row (status pending → running), starts a daemon <code>threading.Thread</code> on
+        <code>_process_job</code>, returns a 16-hex job ID.</td></tr>
+    <tr><td><code>_process_job(job_id, records, chunk_size)</code></td>
+        <td>Iterates in chunks of 10; each record is scored with <strong>one retry</strong> on failure; failures are
+        recorded as <code>{"supplier_id", "error"}</code> result rows rather than aborting the job. Progress
+        (processed/failed) is persisted after every chunk, so pollers see live progress. Terminal states:
+        <code>completed</code> (with JSON results) or <code>failed</code> (unexpected outer exception).</td></tr>
+    <tr><td><code>_map_csv_row(row)</code> / <code>_predict_sync(data)</code></td>
+        <td>Type-coerces CSV strings with defaults (missing country → "XX" → 0.5 unknown-country risk), then runs the
+        same features → registry → predict/explain path as real-time inference — one model contract, two entry points.</td></tr>
+  </table></div>
+
+  <div class="callout why">
+    <div class="title">Why chunked + per-record error isolation</div>
+    <p>A 10,000-row file with one malformed row should produce 9,999 predictions and 1 recorded error — not a dead
+    job. Chunking bounds the granularity of progress updates (one DB write per 10 records, not per record), and
+    per-record try/retry/except converts data-quality problems into inspectable results instead of crashes.</p>
+  </div>
+
+  <div class="callout warn">
+    <div class="title">What can go wrong</div>
+    <ul>
+      <li><strong>Immediate identical retry:</strong> the retry re-runs the same deterministic computation, so a
+      parse error (e.g. non-numeric <code class="inline">defect_rate</code>) fails identically twice. Retries pay off
+      for transient faults (network, locks) — with backoff — not deterministic ones. Good self-critique material.</li>
+      <li><strong>Jobs die with the process:</strong> daemon threads are killed on shutdown; a restart leaves jobs
+      stuck in <code class="inline">running</code> forever with no recovery/reaper logic. Debugging tip: perpetual
+      "running" jobs after a redeploy are exactly this.</li>
+      <li><strong>Results as one JSON blob:</strong> the whole result list is serialized into a single
+      <code class="inline">results</code> TEXT column — memory-heavy for large jobs and unqueryable. The (unused)
+      <code class="inline">batch_job_items</code> table is the schema-ready fix.</li>
+      <li><strong>No concurrency limit:</strong> every submitted job gets its own thread; N large uploads = N threads
+      competing with request handling (and the GIL).</li>
+    </ul>
+  </div>
+
+  <div class="callout trade">
+    <div class="title">Production tradeoffs</div>
+    <ul>
+      <li>Replace threads with a real work queue — Celery/RQ/Arq or a cloud-native equivalent (SQS + workers,
+      Cloud Tasks). You gain persistence across restarts, retries with backoff, concurrency control, and dead-letter
+      queues.</li>
+      <li>Large batches stream results to object storage (S3/Parquet) rather than a DB column; the job row stores a
+      pointer.</li>
+      <li>Add idempotency keys so a client-side retry of <code class="inline">start_job</code> doesn't double-score.</li>
+    </ul>
+  </div>
+
+  <div class="callout talk">
+    <div class="title">Interview talking points</div>
+    <ul>
+      <li>"Submit/poll with persisted progress is the right API shape; the in-process thread is the demo-scale
+      executor. Swapping the executor for Celery changes zero API surface — that boundary was deliberate."</li>
+      <li>"Batch and real-time share one prediction path (features → registry → model), so a model promotion instantly
+      applies to both — no training/serving-style skew between the two entry points."</li>
+      <li>Be ready for: "What happens if the server restarts mid-job?" — answer honestly (stuck in running) and
+      describe the reaper/queue fix.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="monitoring-service">
+  <span class="tag svc">Service · Ops</span>
+  <h2><code>services/monitoring_service.py</code> — Platform metrics aggregator</h2>
+
+  <h3>Purpose</h3>
+  <p>
+    Computes the operational dashboard from <code class="inline">request_history</code>: latency percentiles
+    (p50/p95/p99 via NumPy), requests-per-minute, error rate, cache-hit rate, per-endpoint breakdowns, an estimated
+    cost figure (per-request unit costs from config), and embeds the drift report from
+    <code class="inline">DriftService</code>. One endpoint, one JSON, the whole platform's health.
+  </p>
+
+  <h3>Key functions</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Member</th><th>What it does</th></tr>
+    <tr><td><code>get_metrics()</code></td>
+        <td>Loads up to 10k history rows; computes <code>np.percentile</code> p50/p95/p99 over latencies;
+        counts rows with timestamps in the last 60 s (defensive ISO parsing, "Z" handling) for RPM;
+        derives error and cache-hit rates; estimates cost as
+        <code>inference_count · $0.002 + rag_count · $0.005</code>; groups rows by endpoint for per-endpoint
+        count / avg latency / error rate; attaches <code>drift_service.get_drift_score()</code>.</td></tr>
+    <tr><td><code>_empty_metrics()</code></td>
+        <td>Full-shape zeroed payload when there is no traffic — the dashboard never has to null-check.</td></tr>
+  </table></div>
+
+  <div class="callout why">
+    <div class="title">Why percentiles and cost, not averages</div>
+    <p>Averages hide tail pain: one slow dependency turns p99 red long before the mean moves, and users live at the
+    tail. The cost estimate matters because inference cost is a first-class production metric for AI platforms —
+    caching isn't just a latency optimization, it's a budget line, and this endpoint makes that visible
+    (hit rate × unit cost = money saved).</p>
+  </div>
+
+  <div class="callout warn">
+    <div class="title">What can go wrong</div>
+    <ul>
+      <li><strong>The status-string bug:</strong> errors are counted as <code class="inline">status != "success"</code>,
+      but services log <code class="inline">status="ok"</code> — so error_rate reads ~1.0 under healthy traffic.
+      A shared status enum (or counting <code class="inline">status not in ("ok","success")</code>) fixes it.
+      Excellent "find the cross-service constant drift" debugging story.</li>
+      <li><strong>Hardcoded <code class="inline">rag_citation_rate: 0.85</code></strong> — a placeholder metric.
+      Never ship a constant pretending to be a measurement; compute it from history payloads or omit it.</li>
+      <li><strong>Percentiles need volume:</strong> p99 over 20 requests is just the max; treat small-sample
+      percentiles as noise.</li>
+      <li><strong>Full-table rescan per call:</strong> every dashboard refresh re-reads and re-aggregates 10k rows.
+      Cheap now, quadratic pain later.</li>
+    </ul>
+  </div>
+
+  <div class="callout trade">
+    <div class="title">Production tradeoffs</div>
+    <ul>
+      <li>Real systems emit metrics at write time — Prometheus histograms per endpoint, Grafana dashboards,
+      alerting rules on SLO burn rates — instead of recomputing from an audit table on read.</li>
+      <li>RPM from timestamps becomes a proper rate over a rolling window; cost estimation joins actual token/compute
+      billing rather than flat unit prices.</li>
+      <li>Keep this JSON endpoint anyway: a single self-describing health document is gold for demos, smoke tests,
+      and quick triage.</li>
+    </ul>
+  </div>
+
+  <div class="callout talk">
+    <div class="title">Interview talking points</div>
+    <ul>
+      <li>"The four golden signals adapted to ML serving: latency percentiles, traffic, errors, plus the two ML-specific
+      ones — drift and cost. Cache hit rate ties directly to cost per request."</li>
+      <li>"Compute-on-read from an audit log is the simplest correct thing at this scale; I'd move to
+      emit-on-write (Prometheus) the moment traffic makes rescans expensive. Knowing when to make that switch is
+      the senior judgment call."</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="drift-service">
+  <span class="tag svc">Service · Ops</span>
+  <h2><code>services/drift_service.py</code> — Usage-drift detection via JSD</h2>
+
+  <h3>Purpose</h3>
+  <p>
+    Detects when the <em>mix of incoming traffic</em> shifts away from expectations. Each historical request is
+    classified into one of five intents; the live distribution is compared to a frozen baseline
+    (40% risk_assessment / 25% compliance / 15% pricing / 12% quality / 8% general) with Jensen–Shannon divergence,
+    and thresholded into <code class="inline">ok / warning / alert</code>.
+  </p>
+
+  <h3>Key functions</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Member</th><th>What it does</th></tr>
+    <tr><td><code>_classify_intent(text)</code></td>
+        <td>Rule cascade over endpoint + query text: inference/"risk" → risk_assessment; RAG queries matched against
+        keyword sets for compliance / pricing / quality; otherwise general. Cheap, deterministic, explainable.</td></tr>
+    <tr><td><code>_kld(p, q, eps)</code> / <code>_compute_jsd(p, q)</code></td>
+        <td>KL divergence with epsilon smoothing (avoids log(0)); JSD unions both key sets, zero-fills, builds the
+        midpoint mixture M = (P+Q)/2, and returns ½KL(P‖M) + ½KL(Q‖M) — symmetric, bounded by ln 2.</td></tr>
+    <tr><td><code>get_drift_score()</code></td>
+        <td>Classifies the last 1000 requests, normalizes to a distribution, computes JSD vs baseline, maps to
+        status via <code>drift_warning=0.20</code> / <code>drift_alert=0.35</code>, and returns both distributions
+        plus sample size — the report explains itself.</td></tr>
+  </table></div>
+
+  <div class="callout why">
+    <div class="title">Why JSD, and why intent-level drift</div>
+    <p>KL divergence is asymmetric (KL(P‖Q) ≠ KL(Q‖P)) and unbounded — a category present in baseline but absent in
+    live traffic sends it to infinity, making thresholds meaningless. JSD fixes both: symmetric, finite, bounded, so
+    "0.20 = warning" is a stable contract. Intent-level drift is the cheapest early-warning layer: it needs no labels
+    and no feature access, just request logs — usage shifting toward compliance queries tells you to re-check RAG
+    coverage <em>before</em> answer quality visibly degrades.</p>
+  </div>
+
+  <div class="callout warn">
+    <div class="title">What can go wrong</div>
+    <ul>
+      <li><strong>Classifier–baseline coupling:</strong> the score measures drift of <em>classified</em> intents.
+      Editing keyword lists silently shifts the measured distribution and can fake (or mask) drift. Version the
+      classifier with the baseline.</li>
+      <li><strong>Frozen hardcoded baseline:</strong> if the business legitimately changes (compliance season!),
+      drift alerts forever until someone re-baselines. Production wants baseline as versioned data with a rebaseline
+      workflow, not a class constant.</li>
+      <li><strong>Small-sample noise:</strong> JSD over 10 requests swings wildly; gate the status on
+      <code class="inline">sample_size</code> before alerting.</li>
+      <li><strong>Substring pitfalls:</strong> <code class="inline">"risk" in text</code> matches any RAG query
+      containing the word "risk", pulling it into risk_assessment. Keyword classifiers need word-boundary matching.</li>
+    </ul>
+  </div>
+
+  <div class="callout trade">
+    <div class="title">Production tradeoffs</div>
+    <ul>
+      <li>Full drift coverage is layered: usage/intent drift (this), <em>feature drift</em> (PSI/KS per input feature),
+      <em>prediction drift</em> (score distribution shift), and — with labels — <em>performance drift</em>.
+      Tools: Evidently, whylogs/WhyLabs, or warehouse SQL jobs.</li>
+      <li>Intent classification upgrades from keywords to embedding-cluster assignment; drift then compares cluster
+      occupancy.</li>
+      <li>Run drift as a scheduled job with windowed comparisons (this week vs training window), not on-demand over
+      "last 1000 rows".</li>
+    </ul>
+  </div>
+
+  <div class="callout talk">
+    <div class="title">Interview talking points</div>
+    <ul>
+      <li>"I chose JSD over KL deliberately: symmetric and bounded means thresholds are stable even when a category
+      drops to zero — with KL that's a division-by-epsilon explosion."</li>
+      <li>"The report returns both distributions, not just a number — a drift score you can't explain is an alert
+      nobody trusts. Ours shows exactly which intent grew."</li>
+      <li>"Drift detection is a hierarchy of cost vs signal: usage drift is free (logs only), performance drift is
+      gold but needs labels. You build the cheap layers first."</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="evaluation-service">
+  <span class="tag svc">Service · Ops</span>
+  <h2><code>services/evaluation_service.py</code> — Golden-set RAG evaluation</h2>
+
+  <h3>Purpose</h3>
+  <p>
+    Regression testing for the RAG system. It replays a curated set of <code class="inline">GOLDEN_QUESTIONS</code>
+    (each with expected doc IDs and expected answer keywords) through the <em>live</em> pipeline and scores four
+    metrics per question — recall@k, precision@k, faithfulness, citation accuracy — then averages them and raises a
+    <code class="inline">regression_detected</code> flag when quality drops below thresholds.
+  </p>
+
+  <h3>Metrics computed</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Metric</th><th>Formula</th><th>Question it answers</th></tr>
+    <tr><td><code>recall_at_k</code></td><td>|expected ∩ retrieved| / |expected|</td>
+        <td>Did retrieval find the documents that contain the answer?</td></tr>
+    <tr><td><code>precision_at_k</code></td><td>|expected ∩ retrieved| / |retrieved|</td>
+        <td>How much of what we retrieved was actually relevant?</td></tr>
+    <tr><td><code>faithfulness</code></td><td>fraction of expected keywords present in the answer</td>
+        <td>Does the generated answer contain the right content? (keyword proxy)</td></tr>
+    <tr><td><code>citation_accuracy</code></td><td>|cited ∩ expected| / |cited|</td>
+        <td>Do the citations point at the right sources?</td></tr>
+  </table></div>
+  <p>
+    Questions with recall &lt; 0.5 are collected into <code class="inline">failed_cases</code> with expected-vs-retrieved
+    doc IDs — the debugging payload, not just a score. Regression fires when avg recall &lt; 0.6 <em>or</em> avg
+    faithfulness &lt; 0.5.
+  </p>
+
+  <div class="callout why">
+    <div class="title">Why golden-set evaluation</div>
+    <p>RAG systems degrade silently: re-chunk the corpus, swap the embedding model, tweak rerank weights — no test
+    fails, users just get worse answers. A golden set converts "the RAG feels worse" into a number that can gate a
+    deploy, exactly like a unit-test suite gates a merge. Because it runs through the real service stack (retrieval,
+    permissions, rerank, generation), it catches integration regressions, not just component ones.</p>
+  </div>
+
+  <div class="callout warn">
+    <div class="title">What can go wrong</div>
+    <ul>
+      <li><strong>Cache contamination:</strong> evaluation queries hit the same RAG cache as production traffic —
+      a second evaluation run may score cached answers, and eval queries pollute the cache. Evaluations should bypass
+      or namespace the cache.</li>
+      <li><strong>Keyword faithfulness is a weak proxy:</strong> an answer can contain every keyword and still be
+      wrong (or contradictory). It's honest for the extractive mock generator; with a real LLM you need
+      LLM-as-judge or NLI-based groundedness scoring.</li>
+      <li><strong>Golden-set rot:</strong> expected_doc_ids break when documents are re-chunked or re-IDed. The golden
+      set is a versioned artifact that must migrate with the corpus.</li>
+      <li><strong>Role-dependence:</strong> results are computed as role="analyst"; a permission change can move
+      scores without any retrieval change. That's a feature (it catches permission regressions) but a confusing one
+      if you don't know it.</li>
+    </ul>
+  </div>
+
+  <div class="callout trade">
+    <div class="title">Production tradeoffs</div>
+    <ul>
+      <li>Wire into CI/CD: run on every PR touching retrieval/prompt/index code, block merge on regression — the ML
+      analog of a test suite. Frameworks: Ragas, TruLens, DeepEval, or this exact hand-rolled shape.</li>
+      <li>Store evaluation runs over time (per model/index/prompt version) to draw quality trendlines, not just
+      point-in-time pass/fail.</li>
+      <li>Grow the set from production: mine low-confidence or thumbs-down queries into new golden questions.</li>
+    </ul>
+  </div>
+
+  <div class="callout talk">
+    <div class="title">Interview talking points</div>
+    <ul>
+      <li>"Retrieval and generation need separate metrics — recall@k tells you if search failed, faithfulness tells
+      you if generation failed. One blended score can't tell you which stage to fix."</li>
+      <li>"failed_cases with expected-vs-retrieved doc IDs is the difference between an alarm and a diagnosis."</li>
+      <li>"The regression flag exists to gate deploys — evaluation that doesn't block anything is a dashboard, not a
+      control."</li>
+    </ul>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ============================================================ -->
+<section id="supplier-risk-model">
+  <span class="tag ml">ML</span>
+  <h2><code>ml/supplier_risk_model.py</code> — Risk models behind one contract</h2>
+
+  <h3>Purpose</h3>
+  <p>
+    Defines the model contract and two implementations. <code class="inline">BaseRiskModel</code> (ABC) requires
+    <code class="inline">predict(features) → {risk_score, risk_level}</code> and
+    <code class="inline">explain(features) → list[factor contributions]</code> — note that <em>explainability is part
+    of the interface</em>, not an afterthought.
+  </p>
+
+  <h3>Key pieces</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Member</th><th>What it does</th></tr>
+    <tr><td><code>RuleBasedModel.predict()</code></td>
+        <td>Weighted sum over five normalized features — defect_rate 0.30, late_delivery 0.25, country_risk 0.20,
+        lead_time 0.15, order_value 0.10 — clamped to [0,1], then bucketed by thresholds
+        (≥0.85 critical, ≥0.70 high, ≥0.40 medium, else low).</td></tr>
+    <tr><td><code>RuleBasedModel.explain()</code></td>
+        <td>Exact additive attribution: each factor's impact is literally <code>value × weight</code>, tagged with a
+        direction, sorted by impact. Because the model is linear, the explanation is provably faithful — it sums to
+        the score.</td></tr>
+    <tr><td><code>TrainedModel</code></td>
+        <td>Loads a pickled sklearn classifier if the artifact path exists; otherwise
+        <code>is_using_fallback=True</code> and all calls delegate to an internal <code>RuleBasedModel</code>.
+        Predicts via <code>predict_proba(...).max()</code>; explains via <code>feature_importances_</code>. Features
+        are ordered by <em>sorted key names</em> (excluding supplier_id) to build the vector.</td></tr>
+  </table></div>
+
+  <div class="callout why">
+    <div class="title">Why start rule-based</div>
+    <p>Day one, there is no labeled training data. A weighted scorer encodes domain knowledge, ships immediately,
+    is 100% explainable, and — crucially — establishes the serving contract that a trained model must later satisfy.
+    It then becomes the permanent safety net: the trained model can fail to load, the rule-based one cannot.</p>
+  </div>
+
+  <div class="callout warn">
+    <div class="title">What can go wrong</div>
+    <ul>
+      <li><strong>Silent fallback:</strong> a missing/renamed artifact path quietly serves rule-based scores while
+      everyone believes the trained model is live. <code class="inline">is_using_fallback</code> exists but nothing
+      logs or exposes it — surface it in /health and metrics.</li>
+      <li><strong>Feature-order skew:</strong> sorted-key ordering must match training exactly; adding one feature to
+      <code class="inline">build_features</code> shifts every vector position and silently corrupts trained-model
+      predictions. Production stores an explicit feature list with the artifact.</li>
+      <li><strong><code class="inline">predict_proba(...).max()</code> is not a risk score:</strong> it's the
+      confidence of the <em>most likely class</em> — for a confident "low-risk" prediction it returns a high number
+      that then thresholds as "critical". It should be the probability of the positive/high-risk class.</li>
+      <li><strong>Pickle is unsafe:</strong> loading a pickle executes arbitrary code (the <code class="inline"># noqa: S301</code>
+      acknowledges it). Production wants signed artifacts, ONNX, or joblib from a trusted registry only.</li>
+      <li><strong>feature_importances_ are global, not per-prediction</strong> — every request gets the same
+      "explanation". Honest per-prediction attribution needs SHAP/TreeExplainer.</li>
+    </ul>
+  </div>
+
+  <div class="callout trade">
+    <div class="title">Production tradeoffs</div>
+    <ul>
+      <li>Rule-based → gradient-boosted trees (XGBoost/LightGBM) with SHAP explanations; calibrate probabilities
+      (Platt/isotonic) so thresholds mean what they say.</li>
+      <li>Champion/challenger: keep the rules as a sanity baseline; alert when trained-model outputs diverge wildly
+      from the rule score for the same input.</li>
+      <li>Artifact management moves to MLflow/SageMaker registry with lineage: data version, training code commit,
+      metrics, approval status.</li>
+    </ul>
+  </div>
+
+  <div class="callout talk">
+    <div class="title">Interview talking points</div>
+    <ul>
+      <li>"Explainability is in the ABC — you cannot register a model here that can't explain itself. For supplier
+      risk (a decision with money on the line), that's a requirement, not a nice-to-have."</li>
+      <li>"The rule model's explanation is provably faithful because the model is additive. The moment we go to trees,
+      faithful attribution costs SHAP compute — that's a real tradeoff to name."</li>
+      <li>Call out the <code class="inline">predict_proba().max()</code> bug yourself if asked to critique the code —
+      it's the exact kind of subtle ML-serving bug interviewers love.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="feature-builder">
+  <span class="tag ml">ML</span>
+  <h2><code>ml/feature_builder.py</code> — Deterministic feature engineering</h2>
+
+  <h3>Purpose</h3>
+  <p>
+    The single transformation from a raw supplier record to the normalized feature dict every model consumes.
+    Both real-time inference and batch scoring call this exact function — one implementation, zero
+    training/serving-skew risk between entry points.
+  </p>
+
+  <h3>Key functions</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Function</th><th>What it does</th></tr>
+    <tr><td><code>normalize_*</code> (lead_time, defect_rate, late_delivery, order_value)</td>
+        <td>Divide by a domain cap (120 days, 25% defects, 50 late deliveries, $500k) and clamp to [0,1] —
+        min-max scaling with fixed, documented bounds instead of data-dependent statistics.</td></tr>
+    <tr><td><code>get_country_risk(country)</code></td>
+        <td>Lookup in a 10-country risk table (e.g. DE 0.10 … BD 0.50); <strong>unknown country → 0.5</strong> —
+        "we don't know" is deliberately scored as medium risk, not zero risk.</td></tr>
+    <tr><td><code>build_features(supplier_data)</code></td>
+        <td>Assembles the five normalized features plus two engineered ones:
+        <code>defect_cost_interaction</code> (defect_rate × order_value / cap — a 5% defect rate hurts far more on a
+        $400k order) and <code>delivery_reliability</code> (1 − late/cap, an inverted "good" framing).
+        Everything rounded to 6 decimals for stable cache keys and logs.</td></tr>
+  </table></div>
+
+  <div class="callout why">
+    <div class="title">Why fixed caps instead of fitted scalers</div>
+    <p>A fitted StandardScaler is state that must be versioned, shipped with the model, and kept in sync — the #1
+    source of training/serving skew. Fixed domain caps are stateless, interpretable ("120 days is the worst lead time
+    we consider"), and identical everywhere by construction. The cost: they're opinions, and outliers saturate at 1.0.</p>
+  </div>
+
+  <div class="callout warn">
+    <div class="title">What can go wrong</div>
+    <ul>
+      <li><strong>KeyError on missing fields:</strong> <code class="inline">build_features</code> indexes raw fields
+      directly (<code class="inline">supplier_data["lead_time_days"]</code>). The API path is safe (Pydantic
+      validated) — but any new caller passing a partial dict crashes. Batch protects itself with
+      <code class="inline">_map_csv_row</code> defaults.</li>
+      <li><strong>Saturation hides magnitude:</strong> 130 and 400 lead-time days both normalize to 1.0. If tails
+      matter, add log-scaling or an "exceeds cap" flag feature.</li>
+      <li><strong>Interaction uses raw defect_rate:</strong> <code class="inline">defect_cost_interaction</code>
+      multiplies the raw rate (0–0.25 typical) by normalized order value, so the interaction lives in a much smaller
+      numeric range than the other features — a trained model handles that, but the rule-model weights ignore this
+      feature entirely (it's not in <code class="inline">_WEIGHTS</code>).</li>
+      <li><strong>Country table maintenance:</strong> a hardcoded geo-risk map is a governance artifact pretending to
+      be code — it needs an owner, sourcing, and review cadence in production.</li>
+    </ul>
+  </div>
+
+  <div class="callout trade">
+    <div class="title">Production tradeoffs</div>
+    <ul>
+      <li>At scale this becomes a <strong>feature store</strong> (Feast, Tecton): batch-computed aggregates
+      (rolling 90-day defect rate) served online with guaranteed training/serving consistency and point-in-time
+      correctness.</li>
+      <li>Feature definitions get versioned; a model artifact pins the feature-set version it was trained on.</li>
+      <li>Add input-validation telemetry: distribution of each raw field, rate of cap saturation, unknown-country
+      rate — these are your feature-drift sensors.</li>
+    </ul>
+  </div>
+
+  <div class="callout talk">
+    <div class="title">Interview talking points</div>
+    <ul>
+      <li>"One feature function shared by online and batch paths is my skew story: there is no second implementation
+      to drift."</li>
+      <li>"Unknown country defaults to 0.5, not 0 — missing data as 'medium risk' is a domain decision encoded in
+      code, and I can point at the line."</li>
+      <li>"Interaction features are where domain knowledge enters: defect_rate × order_value expresses that quality
+      problems scale with financial exposure — a linear model can't learn that on its own."</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="model-registry">
+  <span class="tag ml">ML</span>
+  <h2><code>ml/model_registry.py</code> — Model versioning and stage management</h2>
+
+  <h3>Purpose</h3>
+  <p>
+    An in-memory registry mapping versions to <code class="inline">ModelVersion</code> records
+    (name, semver, stage, live model instance, registration timestamp). Stages are a typed
+    <code class="inline">Literal["production", "canary", "archived"]</code> — the standard promotion lifecycle.
+    On construction it bootstraps <code class="inline">supplier-risk-rule-based v1.0.0</code> into production so the
+    platform always has a servable model.
+  </p>
+
+  <h3>Key functions</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Member</th><th>What it does</th></tr>
+    <tr><td><code>register(name, version, stage, model_instance)</code></td>
+        <td>Creates and stores a <code>ModelVersion</code> keyed by version string; returns the entry.</td></tr>
+    <tr><td><code>get_production()</code></td>
+        <td>Linear scan for the first version staged "production" — the lookup inference and batch make on
+        <em>every</em> prediction, which is what makes promotion instant.</td></tr>
+    <tr><td><code>get_by_version(v)</code> / <code>list_versions()</code></td>
+        <td>Direct lookup (pinned scoring, A/B) / enumeration for a models API.</td></tr>
+  </table></div>
+
+  <div class="callout why">
+    <div class="title">Why indirection between callers and models</div>
+    <p>No service ever constructs a model — they ask the registry for "current production". That single indirection
+    is what makes deploy-time model swaps, canaries, and rollbacks possible without code changes: promotion is a
+    registry state change, not a redeploy. The bootstrap default encodes "the platform must never have zero servable
+    models".</p>
+  </div>
+
+  <div class="callout warn">
+    <div class="title">What can go wrong</div>
+    <ul>
+      <li><strong>Nothing prevents two "production" versions</strong> — <code class="inline">register()</code> doesn't
+      demote the incumbent, and <code class="inline">get_production()</code> returns whichever iterates first
+      (dict insertion order). Promotion must be atomic: promote-new + demote-old in one operation.</li>
+      <li><strong>Keying by version only:</strong> two different model <em>names</em> with the same version string
+      collide and overwrite. Key should be (name, version).</li>
+      <li><strong>Multiple registry instances:</strong> <code class="inline">InferenceService</code> and
+      <code class="inline">BatchService</code> each construct their own <code class="inline">ModelRegistry()</code>.
+      They agree today only because bootstrap is deterministic — register a canary in one and the other never sees it.
+      The registry should be a shared singleton (or external service).</li>
+      <li><strong>In-memory = amnesia:</strong> restart loses all registrations except bootstrap; there's no audit
+      trail of who promoted what when.</li>
+    </ul>
+  </div>
+
+  <div class="callout trade">
+    <div class="title">Production tradeoffs</div>
+    <ul>
+      <li>This is the interface of <strong>MLflow Model Registry</strong> / SageMaker Model Registry: persistent
+      versions, stage transitions with approval workflows, lineage to training runs, artifact storage.</li>
+      <li>Canary stage becomes real traffic splitting (5% → compare metrics → promote/rollback), driven by the
+      registry's stage field.</li>
+      <li>Registry state changes should emit events — cache invalidation (the stale-prediction issue from
+      inference_service) hangs off "model promoted".</li>
+    </ul>
+  </div>
+
+  <div class="callout talk">
+    <div class="title">Interview talking points</div>
+    <ul>
+      <li>"Model registry is the control plane of MLOps: deployment = stage transition, rollback = stage transition.
+      My version is in-memory, but every caller already speaks the registry protocol, so swapping in MLflow touches
+      one class."</li>
+      <li>"I typed stages as a Literal so an invalid stage is a type error, not a runtime surprise."</li>
+      <li>Discuss the dual-instance flaw proactively — spotting shared-state bugs across service boundaries is a
+      senior signal.</li>
+    </ul>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ============================================================ -->
+<section id="vector-store">
+  <span class="tag stor">Storage</span>
+  <h2><code>storage/vector_store.py</code> — In-memory vector search</h2>
+
+  <h3>Purpose</h3>
+  <p>
+    A minimal vector database: parallel structures of document dicts and an <code class="inline">np.ndarray</code>
+    embedding matrix, with thread-safe add/search/clear. Search is exact (brute-force) cosine similarity —
+    <em>with the crucial twist that the permission filter runs before any similarity math</em>.
+  </p>
+
+  <h3>Key functions</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Member</th><th>What it does</th></tr>
+    <tr><td><code>add_documents(docs, embeddings)</code></td>
+        <td>Appends docs; vstacks embeddings onto the existing matrix (or sets it). Lock-guarded so concurrent adds
+        can't interleave docs and rows out of sync.</td></tr>
+    <tr><td><code>search(query_embedding, top_k, filter_fn)</code></td>
+        <td>1) Build the candidate list, skipping any doc rejected by <code>filter_fn</code> (permission pre-filter).
+        2) Slice the embedding matrix to candidate rows. 3) Normalize query and candidates (with +1e-10 epsilon
+        against zero vectors), compute cosine similarities in one matrix-vector product. 4)
+        <code>np.argsort(...)[::-1][:top_k]</code>, return docs with float scores and metadata.</td></tr>
+    <tr><td><code>clear()</code></td><td>Resets both structures — used by tests and reseeding.</td></tr>
+  </table></div>
+
+  <div class="callout why">
+    <div class="title">Why brute-force, and why filter-then-rank</div>
+    <p>Exact search over a few hundred docs is a single NumPy matmul — microseconds, with perfect recall. ANN indexes
+    (HNSW/IVF) only earn their complexity around 10⁵–10⁶ vectors. Filtering <em>before</em> ranking serves the
+    security invariant (unauthorized docs never scored) and also mirrors a hard real-world problem: filtered ANN
+    search is genuinely difficult (filters break graph connectivity in HNSW), which is why vector DBs advertise
+    pre-filtering support as a feature.</p>
+  </div>
+
+  <div class="callout warn">
+    <div class="title">What can go wrong</div>
+    <ul>
+      <li><strong>Docs/embeddings desync:</strong> <code class="inline">add_documents</code> accepts docs with
+      <code class="inline">embeddings=None</code> (the seeding path does this; EmbeddingService fills the matrix
+      later). Between those moments, index positions must stay aligned — any code that adds docs after embedding
+      bootstrap breaks the parallel-array invariant and returns <em>wrong documents for right scores</em>.
+      Nastiest possible bug class: no exception, just subtly wrong results.</li>
+      <li><strong>Unlocked emptiness check:</strong> the <code class="inline">if not self.documents or self.embeddings is None</code>
+      guard runs before acquiring the lock — a benign race here, but a reminder that check-then-act needs the lock in
+      general.</li>
+      <li><strong>Full argsort:</strong> O(n log n) over all candidates when top-k needs only
+      <code class="inline">np.argpartition</code> O(n). Irrelevant at this size; the first profiler finding at scale.</li>
+      <li><strong>No persistence:</strong> restart → empty store until reseed + re-embed. Fine because seeding is in
+      the lifespan hook; surprising if you forget that.</li>
+    </ul>
+  </div>
+
+  <div class="callout trade">
+    <div class="title">Production tradeoffs</div>
+    <ul>
+      <li>Path of least resistance: <strong>pgvector</strong> — vectors live next to relational data, permission
+      filters become WHERE clauses, one database to operate. Dedicated engines (Qdrant, Weaviate, Milvus, Pinecone)
+      when scale/latency demand ANN + sharding.</li>
+      <li>ANN introduces a recall/latency dial (HNSW ef_search) — retrieval quality becomes a tunable, which is
+      exactly why the golden-set evaluation exists.</li>
+      <li>Store doc + chunk + embedding-model-version together; the version mismatch problem from
+      embedding_service is solved at the schema level.</li>
+    </ul>
+  </div>
+
+  <div class="callout talk">
+    <div class="title">Interview talking points</div>
+    <ul>
+      <li>"Brute-force cosine is the right call under ~100k vectors — perfect recall, one matmul, no index ops.
+      Knowing when <em>not</em> to use a vector database is the senior answer."</li>
+      <li>"Pre-filtered search is the hard part of real vector DBs — filters break HNSW graph traversal. My
+      linear-scan store gets it trivially; that's the tradeoff conversation."</li>
+      <li>"The parallel-array invariant (docs[i] ↔ embeddings[i]) is the store's core fragility — in production the
+      pairing is a single row/point, never two structures."</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="database">
+  <span class="tag stor">Storage</span>
+  <h2><code>storage/database.py</code> — SQLite schema and connections</h2>
+
+  <h3>Purpose</h3>
+  <p>
+    Owns the entire relational schema (idempotent <code class="inline">CREATE TABLE IF NOT EXISTS</code> script) and
+    connection construction. Four tables: <code class="inline">request_history</code> (audit log),
+    <code class="inline">batch_jobs</code> (job lifecycle + results blob), <code class="inline">batch_job_items</code>
+    (per-item results — schema-ready, not yet used by the service), and <code class="inline">cache_entries</code>
+    (persistent cache tier with TTL).
+  </p>
+
+  <h3>Key functions</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Function</th><th>What it does</th></tr>
+    <tr><td><code>init_db()</code></td>
+        <td>Creates the data directory (<code>mkdir(parents=True, exist_ok=True)</code>) and runs the schema script.
+        Idempotent — safe on every startup; called from the FastAPI lifespan hook.</td></tr>
+    <tr><td><code>get_connection()</code></td>
+        <td>New connection per call with three deliberate settings:
+        <code>row_factory = sqlite3.Row</code> (dict-like rows → <code>dict(row)</code> in repositories),
+        <code>PRAGMA journal_mode=WAL</code> (readers don't block the writer — essential since batch threads write
+        while API requests read), and <code>PRAGMA foreign_keys=ON</code> (off by default in SQLite!).</td></tr>
+  </table></div>
+
+  <div class="callout why">
+    <div class="title">Why SQLite, and why WAL</div>
+    <p>Zero-ops, single-file, transactional, and honestly sufficient for a demo platform's write volume. WAL mode is
+    the non-obvious expert choice: default rollback-journal mode lets a single writer block all readers; WAL gives
+    concurrent readers + one writer, which this app genuinely needs (background batch thread writing progress while
+    monitoring reads history).</p>
+  </div>
+
+  <div class="callout warn">
+    <div class="title">What can go wrong</div>
+    <ul>
+      <li><strong>"database is locked":</strong> WAL still allows only one writer; concurrent writers (batch progress +
+      history inserts) can collide. No <code class="inline">busy_timeout</code> is set, so a collision raises
+      immediately instead of waiting. First fix: <code class="inline">PRAGMA busy_timeout=5000</code>.</li>
+      <li><strong>Connection-per-operation overhead:</strong> every repository method opens/closes a connection —
+      correct and leak-proof, but each open re-runs PRAGMAs. A pool (or thread-local connections) is the next step.</li>
+      <li><strong>No migration story:</strong> <code class="inline">IF NOT EXISTS</code> creates but never alters —
+      adding a column to an existing deployment silently does nothing. Real evolution needs Alembic-style versioned
+      migrations.</li>
+      <li><strong>No indexes:</strong> <code class="inline">request_history</code> is queried by endpoint and ordered
+      by timestamp with no index on either — table scans that grow with the audit log.</li>
+      <li><strong>Timestamps:</strong> <code class="inline">CURRENT_TIMESTAMP</code> is UTC but stored without
+      timezone info; note the careful <code class="inline">replace(tzinfo=timezone.utc)</code> dance in
+      CacheRepository — mixing naive and aware datetimes is a classic TTL bug source.</li>
+    </ul>
+  </div>
+
+  <div class="callout trade">
+    <div class="title">Production tradeoffs</div>
+    <ul>
+      <li>Postgres for multi-writer concurrency, real types (JSONB, TIMESTAMPTZ), and — with pgvector — the vector
+      store merges into the same database.</li>
+      <li>Repositories keep raw SQL isolated, so the migration is mechanical: swap the connection factory, parameter
+      style, and upsert syntax. That containment was the design goal.</li>
+      <li>Introduce connection pooling (or SQLAlchemy engine) and versioned migrations before any schema change ships.</li>
+    </ul>
+  </div>
+
+  <div class="callout talk">
+    <div class="title">Interview talking points</div>
+    <ul>
+      <li>"Two PRAGMAs show I know SQLite's sharp edges: WAL for reader/writer concurrency, and foreign_keys=ON
+      because SQLite ships with FK enforcement <em>disabled</em>."</li>
+      <li>"SQLite-to-Postgres is a swap of the connection factory precisely because no SQL leaks above the repository
+      layer."</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="repositories">
+  <span class="tag stor">Storage</span>
+  <h2><code>storage/repositories.py</code> — Data-access layer</h2>
+
+  <h3>Purpose</h3>
+  <p>
+    All SQL in the codebase lives here, in three repositories mapping 1:1 to concerns: history, batch jobs, cache.
+    Services speak dicts; repositories speak SQL. Every method is parameterized (no string-built SQL) and uses
+    <code class="inline">try/finally conn.close()</code> so connections never leak, even on error.
+  </p>
+
+  <h3>Key methods</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Repository</th><th>Highlights</th></tr>
+    <tr><td><code>HistoryRepository</code></td>
+        <td><code>insert()</code> with named parameters, JSON-encoding the payload dict;
+        <code>query()</code> newest-first with optional endpoint filter and limit; <code>count()</code>.</td></tr>
+    <tr><td><code>BatchJobRepository</code></td>
+        <td>Job lifecycle: <code>create()</code> (status "pending", returns the created row),
+        <code>update_progress()</code> (processed/failed counts), <code>update_status()</code> — which stamps
+        <code>completed_at</code> automatically when status enters a terminal state ("completed"/"failed"),
+        <code>get()</code>, <code>list_all()</code>.</td></tr>
+    <tr><td><code>CacheRepository</code></td>
+        <td><code>get()</code> enforces TTL: computes elapsed seconds since <code>created_at</code>
+        (re-attaching UTC tzinfo) and lazily deletes + returns None when expired.
+        <code>set()</code> is an atomic upsert via <code>INSERT ... ON CONFLICT(cache_key) DO UPDATE</code>,
+        resetting <code>created_at</code> so TTL restarts on overwrite. <code>clear_expired()</code> bulk-deletes
+        using <code>julianday()</code> arithmetic entirely in SQL.</td></tr>
+  </table></div>
+
+  <div class="callout why">
+    <div class="title">Why the repository pattern (and lazy TTL)</div>
+    <p>Services stay testable (fake a repo, no DB) and the SQLite→Postgres migration is contained to this file.
+    Lazy expiration — checking TTL on read instead of running a background sweeper — is exactly how Redis handles
+    expiry for most keys: no timer machinery, expired entries cost nothing until touched, and
+    <code class="inline">clear_expired()</code> exists for occasional bulk cleanup.</p>
+  </div>
+
+  <div class="callout warn">
+    <div class="title">What can go wrong</div>
+    <ul>
+      <li><strong>update_status(job_id, "running") nulls results:</strong> <code class="inline">update_status</code>
+      always writes the <code class="inline">results</code> column — passing no results on an intermediate transition
+      sets it to NULL. Harmless in the current call order (results only exist at completion), but a trap for the next
+      caller. Partial-update SQL should only touch provided columns.</li>
+      <li><strong>Naive-vs-aware datetime handling</strong> in <code class="inline">CacheRepository.get()</code>:
+      <code class="inline">created_at</code> parses as naive and gets UTC re-attached manually. It works because
+      SQLite's CURRENT_TIMESTAMP is UTC — but that assumption is one column default away from a subtle TTL bug
+      (entries expiring 7 hours early/late depending on server timezone).</li>
+      <li><strong>Two TTL implementations must agree:</strong> <code class="inline">get()</code> uses Python datetime
+      math; <code class="inline">clear_expired()</code> uses SQL julianday math. If their semantics ever diverge,
+      reads and sweeps disagree about what's expired.</li>
+      <li><strong>No transactions across calls:</strong> each method commits independently; a multi-step operation
+      (e.g. create job + first progress update) is not atomic. Fine for current usage; a unit-of-work pattern if it
+      grows.</li>
+    </ul>
+  </div>
+
+  <div class="callout trade">
+    <div class="title">Production tradeoffs</div>
+    <ul>
+      <li>Hand-rolled repos vs ORM: raw SQL keeps the demo transparent and dependency-light; SQLAlchemy Core is the
+      sweet spot at team scale (typed, composable, still explicit).</li>
+      <li>The upsert-with-timestamp-reset in <code class="inline">CacheRepository.set()</code> maps 1:1 to Redis
+      <code class="inline">SETEX</code> — the migration is method-for-method.</li>
+      <li>Batch results move from a TEXT blob to the <code class="inline">batch_job_items</code> table (already in
+      the schema) or object storage, enabling per-item queries and streaming reads.</li>
+    </ul>
+  </div>
+
+  <div class="callout talk">
+    <div class="title">Interview talking points</div>
+    <ul>
+      <li>"Every query is parameterized and every connection is closed in a finally block — boring by design; data
+      layers should be boring."</li>
+      <li>"Lazy TTL on read plus an explicit sweeper is the same strategy Redis uses — I can explain why that beats a
+      background timer at this scale."</li>
+      <li>"The repository boundary is my database-migration insurance: services have never seen a SQL string."</li>
+    </ul>
+  </div>
+
+  <p class="backtop"><a href="#top">↑ Back to top</a></p>
+</section>
+
+</main>
+</div>
+</body>
+</html>
