@@ -35,6 +35,10 @@ Latency percentiles (p50/p95/p99), throughput, error rate, and query-intent drif
 
 ![Monitoring](docs/screenshots/monitoring.png)
 
+Per-endpoint breakdown with request counts, average latency, and error rates:
+
+![Monitoring Detail](docs/screenshots/monitoring-detail.png)
+
 ### Evaluation
 RAG quality gates against golden questions — recall@k, precision@k, faithfulness, citation accuracy, failed-case drill-down, and a regression banner that blocks bad builds.
 
